@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Psicologia Interativa</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f7f6;
+            color: #333;
+        }
+
+        /* Estilo das Abas */
+        .tabs {
+            display: flex;
+            background-color: #2c3e50;
+            padding: 0;
+            margin: 0;
+            list-style: none;
+            flex-wrap: wrap;
+        }
+        .tab-link {
+            padding: 15px 20px;
+            color: #fff;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-size: 1em;
+            font-weight: bold;
+            flex: 1 1 auto;
+            text-align: center;
+            min-width: 120px;
+        }
+        .tab-link:hover {
+            background-color: #34495e;
+        }
+        .tab-link.active {
+            background-color: #18bc9c;
+        }
+
+        /* Conteúdo das Abas */
+        .tab-content {
+            display: none;
+            padding: 20px;
+            text-align: center;
+        }
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Estilo Roda Teen */
+        .roda-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        canvas {
+            background-color: #fff;
+            border-radius: 50%;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            cursor: pointer;
+            margin-bottom: 20px;
+            max-width: 100%;
+            height: auto;
+            touch-action: none;
+        }
+        .btn-submit {
+            background-color: #18bc9c;
+            color: #fff;
+            border: none;
+            padding: 12px 25px;
+            font-size: 1em;
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: 0.3s;
+            width: 100%;
+            max-width: 300px;
+        }
+        .btn-submit:hover {
+            background-color: #128f76;
+        }
+
+        /* Estilo dos Cards (Forças VIA) */
+        .cards-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            padding: 10px;
+        }
+        .card-container {
+            perspective: 1000px;
+            width: 100%;
+            max-width: 250px;
+            height: 280px;
+        }
+        .card {
+            width: 100%;
+            height: 100%;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+            cursor: pointer;
+            position: relative;
+        }
+        .card.flipped {
+            transform: rotateY(180deg);
+        }
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            box-sizing: border-box;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        .card-front {
+            background-color: #fff;
+            color: #2c3e50;
+            font-size: 1.2em;
+            font-weight: bold;
+            border-bottom: 5px solid #18bc9c;
+        }
+        .card-back {
+            background-color: #18bc9c;
+            color: #fff;
+            transform: rotateY(180deg);
+            font-size: 0.95em;
+            line-height: 1.4;
+            text-align: left;
+            overflow-y: auto;
+        }
+
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 1.8em;
+        }
+        p.subtitle {
+            color: #7f8c8d;
+            margin-bottom: 30px;
+            font-size: 1em;
+            padding: 0 10px;
+        }
+
+        /* Estilo do Portal do Psicólogo */
+        .login-box {
+            background-color: #fff;
+            border-radius: 12px;
+            padding: 30px 20px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+            max-width: 400px;
+            width: 100%;
+            margin: 0 auto;
+        }
+        .login-box label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        .login-box input {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #bdc3c7;
+            border-radius: 5px;
+            font-size: 1em;
+            box-sizing: border-box;
+        }
+        .login-box input:focus {
+            outline: none;
+            border-color: #18bc9c;
+            box-shadow: 0 0 5px rgba(24, 188, 156, 0.3);
+        }
+
+        .submissions-list {
+            max-width: 600px;
+            width: 100%;
+            margin: 30px auto;
+            padding: 0 10px;
+        }
+        .submission-card {
+            background-color: #fff;
+            border-left: 5px solid #18bc9c;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .submission-title {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #2c3e50;
+            word-break: break-word;
+        }
+        .submission-meta {
+            font-size: 0.85em;
+            color: #7f8c8d;
+        }
+        .submission-card .btn-submit {
+            align-self: flex-start;
+            padding: 8px 16px;
+            font-size: 0.9em;
+            width: auto;
+        }
+
+        /* Estilo do Modal */
+        .modal {
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background-color: #fff;
+            padding: 30px 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            width: 100%;
+            max-width: 400px;
+            position: relative;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-close {
+            position: absolute;
+            right: 15px;
+            top: 15px;
+            font-size: 28px;
+            font-weight: bold;
+            color: #7f8c8d;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .modal-close:hover {
+            color: #e74c3c;
+        }
+
+        .modal-content h2 {
+            margin-top: 0;
+            color: #2c3e50;
+        }
+
+        .modal-content form {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .modal-content label {
+            font-weight: bold;
+            color: #2c3e50;
+            margin-top: 8px;
+        }
+
+        .modal-content input {
+            padding: 10px;
+            border: 1px solid #bdc3c7;
+            border-radius: 5px;
+            font-size: 1em;
+        }
+
+        .modal-content input:focus {
+            outline: none;
+            border-color: #18bc9c;
+            box-shadow: 0 0 5px rgba(24, 188, 156, 0.3);
+        }
+
+        .psico-item {
+            background-color: #fff;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-left: 4px solid #18bc9c;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        /* Media Queries para Mobile */
+        @media (max-width: 768px) {
+            .tab-link {
+                padding: 12px 15px;
+                font-size: 0.9em;
+                min-width: 100px;
+            }
+
+            .tab-content {
+                padding: 15px 10px;
+            }
+
+            h1 {
+                font-size: 1.5em;
+            }
+
+            p.subtitle {
+                font-size: 0.9em;
+            }
+
+            .card-container {
+                width: 100%;
+                max-width: 280px;
+                height: 300px;
+            }
+
+            .card-front {
+                font-size: 1.1em;
+            }
+
+            .card-back {
+                font-size: 0.9em;
+                padding: 15px;
+            }
+
+            .btn-submit {
+                font-size: 0.95em;
+                padding: 10px 20px;
+            }
+
+            .modal-content {
+                padding: 20px 15px;
+            }
+
+            .modal-content h2 {
+                font-size: 1.3em;
+            }
+
+            .submission-title {
+                font-size: 1em;
+            }
+
+            .portal-content > div:first-child {
+                flex-direction: column !important;
+                gap: 15px;
+            }
+
+            .portal-content > div:first-child > div {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                width: 100%;
+            }
+
+            .portal-content > div:first-child > div button {
+                width: 100%;
+                margin: 0 !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .tabs {
+                flex-direction: column;
+            }
+
+            .tab-link {
+                width: 100%;
+                text-align: center;
+            }
+
+            h1 {
+                font-size: 1.3em;
+            }
+
+            .card-container {
+                max-width: 100%;
+                height: 280px;
+            }
+
+            .card-front {
+                font-size: 1em;
+            }
+
+            .card-back {
+                font-size: 0.85em;
+            }
+
+            .psico-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .psico-item button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <ul class="tabs">
+        <li class="tab-link active" onclick="openTab('roda-teen', this)">Roda da Vida Adolescente</li>
+        <li class="tab-link" onclick="openTab('forcas-via', this)">Forças</li>
+        <li class="tab-link" onclick="openTab('portal-psico', this)">Portal</li>
+    </ul>
+
+    <div id="roda-teen" class="tab-content active">
+        <h1>Roda da Vida</h1>
+        <p class="subtitle">Clique nas partes do gráfico para preencher cada área com uma nota de 1 a 10.</p>
+        
+        <div class="roda-container">
+            <canvas id="rodaCanvas" width="600" height="600"></canvas>
+            <button class="btn-submit" onclick="submitRoda()">Submeter Respostas</button>
+        </div>
+    </div>
+
+    <div id="forcas-via" class="tab-content">
+        <h1>Forças</h1>
+        <p class="subtitle">Clique em um card para ver a explicação de cada força de assinatura.</p>
+        
+        <div class="cards-grid" id="cardsGrid">
+            </div>
+    </div>
+
+    <div id="portal-psico" class="tab-content">
+        <h1>Portal</h1>
+        <p class="subtitle">Faça login para acessar o portal do psicólogo</p>
+        <div class="login-box" id="loginBox">
+            <form id="loginForm" onsubmit="handlePsicoLogin(event)">
+                <label for="psicoUser">Usuário</label>
+                <input type="text" id="psicoUser" placeholder="Usuário" required>
+                <label for="psicoPassword">Senha</label>
+                <input type="password" id="psicoPassword" placeholder="Senha" required>
+                <button type="submit" class="btn-submit">Entrar</button>
+                
+            </form>
+        </div>
+        <div class="portal-content" id="portalContent" style="display:none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2 style="margin: 0;">Submissões Recebidas</h2>
+                <div>
+                    <button class="btn-submit" onclick="openCadastroModal()" style="margin-right: 10px;">Cadastrar Psicólogo</button>
+                    <button class="btn-submit" onclick="handlePsicoLogout()">Sair</button>
+                </div>
+            </div>
+            <div id="submissionsList" class="submissions-list"></div>
+            <div style="margin-top: 40px; text-align: left; max-width: 600px; margin-left: auto; margin-right: auto;">
+                <h3>Psicólogos cadastrados</h3>
+                <div id="listaPsicologos" class="submissions-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="nomeModal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeNomeModal()">&times;</span>
+            <h2>Salvar Respostas</h2>
+            <form id="nomeForm" onsubmit="handleSubmitRoda(event)">
+                <label for="pacienteName">Por favor, digite seu nome:</label>
+                <input type="text" id="pacienteName" placeholder="Seu nome completo" required autofocus>
+                <button type="submit" class="btn-submit">Gerar PDF</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="cadastroModal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeCadastroModal()">&times;</span>
+            <h2>Cadastrar Novo Psicólogo</h2>
+            <form id="cadastroForm" onsubmit="handleCadastroPsico(event)">
+                <label for="psicoNome">Nome Completo</label>
+                <input type="text" id="psicoNome" placeholder="Nome do psicólogo" required>
+                <label for="novoPsicoUser">Usuário</label>
+                <input type="text" id="novoPsicoUser" placeholder="nome.usuario" required>
+                <label for="novoPsicoPassword">Senha</label>
+                <input type="password" id="novoPsicoPassword" placeholder="Senha segura" required>
+                <button type="submit" class="btn-submit">Cadastrar</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script>
+        /* ============================
+           Lógica das Abas
+           ============================ */
+        function openTab(tabId, element) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-link').forEach(link => link.classList.remove('active'));
+            
+            document.getElementById(tabId).classList.add('active');
+            element.classList.add('active');
+        }
+
+        /* ============================
+           Lógica da Roda da Vida Teen
+           ============================ */
+        const canvas = document.getElementById('rodaCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Tornar canvas responsivo
+        let canvasSize = Math.min(600, window.innerWidth - 40);
+        canvas.width = canvasSize;
+        canvas.height = canvasSize;
+        
+        // Atualizar tamanho do canvas quando a janela for redimensionada
+        window.addEventListener('resize', () => {
+            const oldSize = canvasSize;
+            canvasSize = Math.min(600, window.innerWidth - 40);
+            if (canvasSize !== oldSize) {
+                canvas.width = canvasSize;
+                canvas.height = canvasSize;
+                drawWheel();
+            }
+        });
+        
+        const getCenterAndRadius = () => {
+            const size = canvas.width;
+            return {
+                cx: size / 2,
+                cy: size / 2,
+                maxR: size * 0.38
+            };
+        };
+
+        const categories = [
+            { name: 'ESCOLA', color: '#ff6b6b' },
+            { name: 'NOTAS', color: '#4ecdc4' },
+            { name: 'FAMÍLIA', color: '#9b59b6' },
+            { name: 'AMIGOS', color: '#f1c40f' },
+            { name: 'SAÚDE', color: '#3498db' },
+            { name: 'DIVERSÃO', color: '#e74c3c' },
+            { name: 'AUTO-\nCONCEITO', color: '#2ecc71' },
+            { name: 'CRESCIMENTO', color: '#e67e22' }
+        ];
+
+        let wheelState = [0, 0, 0, 0, 0, 0, 0, 0];
+
+        function drawWheel() {
+            const { cx, cy, maxR } = getCenterAndRadius();
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // 1. Desenhar Fatias Preenchidas
+            for (let i = 0; i < 8; i++) {
+                let startAngle = (i * 45 - 90) * Math.PI / 180;
+                let endAngle = ((i + 1) * 45 - 90) * Math.PI / 180;
+                
+                let level = wheelState[i];
+                if (level > 0) {
+                    ctx.beginPath();
+                    ctx.moveTo(cx, cy);
+                    ctx.arc(cx, cy, (level / 10) * maxR, startAngle, endAngle);
+                    ctx.closePath();
+                    ctx.fillStyle = categories[i].color;
+                    ctx.fill();
+                }
+            }
+            
+            // 2. Desenhar as 10 linhas circulares concêntricas (Níveis)
+            ctx.lineWidth = 1.5;
+            ctx.strokeStyle = '#ecf0f1';
+            for (let r = 1; r <= 10; r++) {
+                ctx.beginPath();
+                ctx.arc(cx, cy, (r / 10) * maxR, 0, 2 * Math.PI);
+                ctx.stroke();
+            }
+            
+            // 3. Desenhar linhas divisórias das fatias
+            ctx.strokeStyle = '#bdc3c7';
+            ctx.lineWidth = 2;
+            for (let i = 0; i < 8; i++) {
+                let angle = (i * 45 - 90) * Math.PI / 180;
+                ctx.beginPath();
+                ctx.moveTo(cx, cy);
+                ctx.lineTo(cx + maxR * Math.cos(angle), cy + maxR * Math.sin(angle));
+                ctx.stroke();
+            }
+            
+            // 4. Desenhar os Títulos Externos e Números
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            
+            // Ajustar tamanho da fonte baseado no tamanho do canvas
+            const fontSize = Math.max(8, Math.floor(canvasSize / 60));
+            const titleOffset = Math.floor(maxR / 6.5);
+            
+            for (let i = 0; i < 8; i++) {
+                let angleCentro = (i * 45 + 22.5 - 90) * Math.PI / 180;
+                
+                // Textos externos
+                let titleX = cx + (maxR + titleOffset) * Math.cos(angleCentro);
+                let titleY = cy + (maxR + titleOffset) * Math.sin(angleCentro);
+                ctx.font = `bold ${fontSize}px Arial`;
+                ctx.fillStyle = categories[i].color;
+                const nameLines = categories[i].name.split('\n');
+                nameLines.forEach((line, idx) => {
+                    ctx.fillText(line, titleX, titleY + (idx * (fontSize + 2)));
+                });
+                
+                // Desenhar números de 1 a 10 no meio de cada nível
+                for (let r = 1; r <= 10; r++) {
+                    let numX = cx + ((r / 10) * maxR - maxR / 20) * Math.cos(angleCentro);
+                    let numY = cy + ((r / 10) * maxR - maxR / 20) * Math.sin(angleCentro);
+                    
+                    ctx.font = `bold ${fontSize}px Arial`;
+                    // Se o número estiver pintado, deixa branco; senão, cinza
+                    ctx.fillStyle = (wheelState[i] >= r) ? '#ffffff' : '#95a5a6';
+                    ctx.fillText(r, numX, numY);
+                }
+            }
+        }
+
+        // Função para obter coordenadas do evento (mouse ou touch)
+        function getEventCoordinates(e) {
+            const rect = canvas.getBoundingClientRect();
+            let clientX, clientY;
+            
+            if (e.touches && e.touches.length > 0) {
+                clientX = e.touches[0].clientX;
+                clientY = e.touches[0].clientY;
+            } else {
+                clientX = e.clientX;
+                clientY = e.clientY;
+            }
+            
+            return {
+                x: clientX - rect.left,
+                y: clientY - rect.top
+            };
+        }
+
+        // Função para processar clique/toque
+        function handleInteraction(e) {
+            e.preventDefault();
+            const { cx, cy, maxR } = getCenterAndRadius();
+            const coords = getEventCoordinates(e);
+            const x = coords.x - cx;
+            const y = coords.y - cy;
+            const r = Math.sqrt(x*x + y*y);
+            
+            if(r > maxR) return; // Clique fora da roda
+            
+            let angle = Math.atan2(y, x) * 180 / Math.PI;
+            angle = Math.round(angle);
+            angle += 90; // Ajusta o zero pro topo
+            if (angle < 0) angle += 360;
+            
+            const catIndex = Math.floor(angle / 45);
+            const level = Math.ceil((r / maxR) * 10);
+            
+            wheelState[catIndex] = level;
+            drawWheel();
+        }
+
+        // Evento de clique e touch
+        canvas.addEventListener('click', handleInteraction);
+        canvas.addEventListener('touchstart', handleInteraction);
+
+        function promptForName() {
+            document.getElementById('nomeModal').style.display = 'flex';
+        }
+
+        function closeNomeModal() {
+            document.getElementById('nomeModal').style.display = 'none';
+            document.getElementById('nomeForm').reset();
+        }
+
+        function handleSubmitRoda(event) {
+            event.preventDefault();
+            const name = document.getElementById('pacienteName').value.trim();
+            
+            if (!name) {
+                alert('O nome é necessário.');
+                return;
+            }
+
+            const doc = createPdf(name);
+            const filename = `Roda_da_Vida_${name.replace(/\s+/g, '_')}.pdf`;
+            doc.save(filename);
+
+            const pdfDataUrl = doc.output('datauristring');
+            storeSubmission(name, pdfDataUrl);
+            alert('PDF gerado com sucesso!');
+            closeNomeModal();
+            renderPsicoPortal();
+        }
+
+        function submitRoda() {
+            promptForName();
+        }
+
+        function createPdf(name) {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            // Adicionar título
+            doc.setFontSize(16);
+            doc.text('Resumo da Roda da Vida', 20, 15);
+            
+            // Adicionar informações básicas
+            doc.setFontSize(11);
+            doc.text(`Nome: ${name}`, 20, 25);
+            doc.text(`Data: ${new Date().toLocaleString('pt-BR')}`, 20, 32);
+            
+            // Adicionar imagem do canvas (roda da vida) - conversão rápida
+            const canvasImage = canvas.toDataURL('image/png');
+            const imgWidth = 140;
+            const imgHeight = 140;
+            doc.addImage(canvasImage, 'PNG', 35, 40, imgWidth, imgHeight);
+            
+            // Adicionar respostas
+            let yPos = 190;
+            doc.setFontSize(12);
+            doc.text('Respostas - Roda da Vida:', 20, yPos);
+            yPos += 8;
+            doc.setFontSize(10);
+            
+            categories.forEach((cat, i) => {
+                const displayName = cat.name.replace('\n', ' ');
+                doc.text(`${displayName}: ${wheelState[i]}`, 20, yPos);
+                yPos += 6;
+            });
+            
+            return doc;
+        }
+
+        function storeSubmission(name, pdfDataUrl) {
+            const submissions = JSON.parse(localStorage.getItem('psicoSubmissions') || '[]');
+            submissions.push({
+                name,
+                timestamp: new Date().toISOString(),
+                pdfDataUrl
+            });
+            localStorage.setItem('psicoSubmissions', JSON.stringify(submissions));
+        }
+
+        function getStoredSubmissions() {
+            return JSON.parse(localStorage.getItem('psicoSubmissions') || '[]');
+        }
+
+        function renderPsicoPortal() {
+            const submissions = getStoredSubmissions();
+            const list = document.getElementById('submissionsList');
+            list.innerHTML = '';
+
+            if (submissions.length === 0) {
+                list.innerHTML = '<p>Nenhuma submissão encontrada.</p>';
+                return;
+            }
+
+            submissions.slice().reverse().forEach((item, index) => {
+                const card = document.createElement('div');
+                card.className = 'submission-card';
+                const date = new Date(item.timestamp);
+                card.innerHTML = `
+                    <div class="submission-title">${item.name}</div>
+                    <div class="submission-meta">${date.toLocaleString('pt-BR')}</div>
+                    <button class="btn-submit" onclick="downloadPdf(${index})">Baixar PDF</button>
+                `;
+                list.appendChild(card);
+            });
+        }
+
+        function downloadPdf(index) {
+            const submissions = getStoredSubmissions().slice().reverse();
+            const submission = submissions[index];
+            if (!submission) return;
+
+            const link = document.createElement('a');
+            link.href = submission.pdfDataUrl;
+            link.download = `Roda_da_Vida_${submission.name.replace(/\s+/g, '_')}.pdf`;
+            link.click();
+        }
+
+        function handlePsicoLogin(event) {
+            event.preventDefault();
+            const user = document.getElementById('psicoUser').value.trim();
+            const password = document.getElementById('psicoPassword').value.trim();
+            const psicologos = getPsicologos();
+            const psicoValido = psicologos.find(p => p.user === user && p.pass === password);
+
+            if (psicoValido) {
+                sessionStorage.setItem('psicoLogado', psicoValido.id);
+                document.getElementById('loginBox').style.display = 'none';
+                document.getElementById('portalContent').style.display = 'block';
+                renderPsicoPortal();
+                renderListaPsicologos();
+            } else {
+                alert('Usuário ou senha incorretos.');
+            }
+        }
+
+        function handlePsicoLogout() {
+            sessionStorage.removeItem('psicoLogado');
+            document.getElementById('loginBox').style.display = 'block';
+            document.getElementById('portalContent').style.display = 'none';
+            document.getElementById('loginForm').reset();
+        }
+
+        // Gerenciamento de Psicólogos
+        function initializePsicologos() {
+            if (!localStorage.getItem('psicologos')) {
+                const defaultPsicologos = [
+                    { id: 1, nome: 'Psicólogo Teste', user: 'psicologo', pass: 'senha123' }
+                ];
+                localStorage.setItem('psicologos', JSON.stringify(defaultPsicologos));
+            }
+        }
+
+        function getPsicologos() {
+            return JSON.parse(localStorage.getItem('psicologos') || '[]');
+        }
+
+        function addPsicologo(nome, user, pass) {
+            const psicologos = getPsicologos();
+            const newId = psicologos.length > 0 ? Math.max(...psicologos.map(p => p.id)) + 1 : 1;
+            psicologos.push({ id: newId, nome, user, pass });
+            localStorage.setItem('psicologos', JSON.stringify(psicologos));
+            return { id: newId, nome, user, pass };
+        }
+
+        function openCadastroModal() {
+            document.getElementById('cadastroModal').style.display = 'flex';
+        }
+
+        function closeCadastroModal() {
+            document.getElementById('cadastroModal').style.display = 'none';
+            document.getElementById('cadastroForm').reset();
+        }
+
+        function handleCadastroPsico(event) {
+            event.preventDefault();
+            const nome = document.getElementById('psicoNome').value.trim();
+            const user = document.getElementById('novoPsicoUser').value.trim();
+            const pass = document.getElementById('novoPsicoPassword').value.trim();
+
+            if (!nome || !user || !pass) {
+                alert('Todos os campos são obrigatórios.');
+                return;
+            }
+
+            const psicologos = getPsicologos();
+            if (psicologos.some(p => p.user === user)) {
+                alert('Este usuário já existe.');
+                return;
+            }
+
+            addPsicologo(nome, user, pass);
+            alert(`Psicólogo ${nome} cadastrado com sucesso!\nUsuário: ${user}`);
+            closeCadastroModal();
+            renderListaPsicologos();
+        }
+
+        function renderListaPsicologos() {
+            const lista = document.getElementById('listaPsicologos');
+            if (!lista) return;
+            
+            const psicologos = getPsicologos();
+            lista.innerHTML = '';
+            
+            psicologos.forEach(psi => {
+                const item = document.createElement('div');
+                item.className = 'psico-item';
+                item.innerHTML = `
+                    <div>
+                        <strong>${psi.nome}</strong><br>
+                        <small>Usuário: ${psi.user}</small>
+                    </div>
+                    <button class="btn-delete" onclick="deletePsicologo(${psi.id})" style="background-color: #e74c3c; padding: 5px 10px; font-size: 0.9em;">Deletar</button>
+                `;
+                lista.appendChild(item);
+            });
+        }
+
+        function deletePsicologo(id) {
+            if (confirm('Deseja realmente deletar este psicólogo?')) {
+                let psicologos = getPsicologos();
+                psicologos = psicologos.filter(p => p.id !== id);
+                localStorage.setItem('psicologos', JSON.stringify(psicologos));
+                renderListaPsicologos();
+            }
+        }
+
+        // Inicializar ao carregar
+        initializePsicologos();
+
+        // Desenho inicial
+        drawWheel();
+
+        /* ============================
+           Lógica dos Cards VIA ME
+           ============================ */
+        const forcasVIA = [
+            {nome: "Amor", texto: "Você valoriza relações próximas com outras pessoas, especialmente aquelas nas quais compartilhar e cuidar são recíprocos."},
+            {nome: "Apreciação da Beleza", texto: "Você percebe e aprecia a beleza, a excelência e/ou o bom desempenho em todos os domínios da vida, da natureza à arte."},
+            {nome: "Amor pelo Aprendizado", texto: "Você adora aprender coisas novas, tanto em aula quanto por si próprio."},
+            {nome: "Autorregulação", texto: "Você regula conscientemente o que sente e o que faz. Você é uma pessoa disciplinada."},
+            {nome: "Bondade e Generosidade", texto: "Você é bom e generoso para os outros, e nunca está ocupado para apoiar alguém."},
+            {nome: "Bravura", texto: "Você é uma pessoa corajosa, que não recua diante de uma ameaça, desafio, dificuldade ou dor."},
+            {nome: "Criatividade", texto: "Pensar em novas formas de fazer as coisas é parte crucial de quem você é."},
+            {nome: "Critério e Julgamento", texto: "Pensar sobre as coisas e examiná-las de todos os lados são aspectos importantes de quem você é. Você não precipita conclusões."},
+            {nome: "Curiosidade", texto: "Você é curioso sobre tudo. Está sempre questionando e acha todos os assuntos fascinantes."},
+            {nome: "Esperança", texto: "Você espera o melhor do futuro e trabalha para alcançá-lo."},
+            {nome: "Espiritualidade", texto: "Você tem crenças fortes e coerentes sobre um propósito maior e sobre o sentido do Universo."},
+            {nome: "Gratidão", texto: "Você é consciente das coisas boas que acontecem com você e nunca as dá como garantidas."},
+            {nome: "Humildade", texto: "Você não procura pelos holofotes, preferindo que suas realizações falem por elas mesmas."},
+            {nome: "Humor", texto: "Você gosta de rir e caçoar. Provocar sorrisos nas outras pessoas é importante pra você."},
+            {nome: "Integridade e Honestidade", texto: "Você é uma pessoa honesta, não apenas por falar a verdade, mas também por viver de forma genuína e autêntica."},
+            {nome: "Inteligência Social", texto: "Você está consciente dos motivos e sentimentos das outras pessoas. Você sabe o que fazer para se adequar a diferentes situações."},
+            {nome: "Justiça e Equidade", texto: "Tratar todas as pessoas imparcialmente é um de seus princípios."},
+            {nome: "Liderança", texto: "Você se sobressai em tarefas de liderança ao encorajar um grupo a realizar coisas e ao preservar a harmonia."},
+            {nome: "Perdão", texto: "Você perdoa aqueles que erraram com você. Sempre dá aos outros uma segunda chance."},
+            {nome: "Perseverança", texto: "Você trabalha duro para terminar o que começou. Independentemente do projeto, termina-o no tempo previsto."},
+            {nome: "Perspectiva", texto: "Apesar de você não se considerar sábio, seus amigos têm essa visão de você e buscam seus conselhos."},
+            {nome: "Prudência", texto: "Você é uma pessoa cuidadosa e suas escolhas são consistentemente prudentes."},
+            {nome: "Trabalho em Equipe", texto: "Você se sobressai como membro de um grupo. Você é um colega leal e dedicado."},
+            {nome: "Vitalidade", texto: "Independentemente do que faça, você o faz com empolgação e energia. Você nunca faz nada pela metade."}
+        ];
+
+        const cardsGrid = document.getElementById('cardsGrid');
+
+        forcasVIA.forEach(forca => {
+            const container = document.createElement('div');
+            container.className = 'card-container';
+            
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.onclick = () => card.classList.toggle('flipped');
+
+            const cardFront = document.createElement('div');
+            cardFront.className = 'card-face card-front';
+            cardFront.textContent = forca.nome;
+
+            const cardBack = document.createElement('div');
+            cardBack.className = 'card-face card-back';
+            cardBack.textContent = forca.texto;
+
+            card.appendChild(cardFront);
+            card.appendChild(cardBack);
+            container.appendChild(card);
+            cardsGrid.appendChild(container);
+        });
+
+    </script>
+</body>
+</html>

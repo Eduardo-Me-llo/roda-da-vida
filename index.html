@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Psicologia Interativa</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <ul class="tabs">
+        <li class="tab-link active" onclick="openTab('roda-teen', this)">Roda da Vida Adolescente</li>
+        <li class="tab-link" onclick="openTab('forcas-via', this)">Forças</li>
+        <li class="tab-link" onclick="openTab('portal-psico', this)">Portal</li>
+    </ul>
+
+    <div id="roda-teen" class="tab-content active">
+        <h1>Roda da Vida</h1>
+        <p class="subtitle">Clique nas partes do gráfico para preencher cada área com uma nota de 1 a 10.</p>
+        
+        <div class="roda-container">
+            <canvas id="rodaCanvas" width="600" height="600"></canvas>
+            <button class="btn-submit" onclick="submitRoda()">Submeter Respostas</button>
+        </div>
+    </div>
+
+    <div id="forcas-via" class="tab-content">
+        <h1>Forças</h1>
+        <p class="subtitle">Clique em um card para ver a explicação de cada força de assinatura.</p>
+        
+        <div class="cards-grid" id="cardsGrid"></div>
+    </div>
+
+    <div id="portal-psico" class="tab-content">
+        <h1>Portal</h1>
+        <p class="subtitle">Faça login para acessar o portal do psicólogo</p>
+        <div class="login-box" id="loginBox">
+            <form id="loginForm" onsubmit="handlePsicoLogin(event)">
+                <label for="psicoUser">E-mail</label>
+                <input type="email" id="psicoUser" placeholder="seu@email.com" required>
+                <label for="psicoPassword">Senha</label>
+                <input type="password" id="psicoPassword" placeholder="Senha" required>
+                <button type="submit" class="btn-submit">Entrar</button>
+                <p style="margin-top: 15px; font-size: 0.9em;">
+                    Não tem conta? <a href="#" onclick="showSignupModal(event)" style="color: #18bc9c; font-weight: bold;">Cadastre-se</a>
+                </p>
+            </form>
+        </div>
+        <div class="portal-content" id="portalContent" style="display:none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2 style="margin: 0;">Submissões Recebidas</h2>
+                <div>
+                    <button class="btn-submit" onclick="handlePsicoLogout()">Sair</button>
+                </div>
+            </div>
+            <div id="submissionsList" class="submissions-list"></div>
+        </div>
+    </div>
+
+    <!-- Modal Nome do Paciente -->
+    <div id="nomeModal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeNomeModal()">&times;</span>
+            <h2>Salvar Respostas</h2>
+            <form id="nomeForm" onsubmit="handleSubmitRoda(event)">
+                <label for="pacienteName">Por favor, digite seu nome:</label>
+                <input type="text" id="pacienteName" placeholder="Seu nome completo" required autofocus>
+                <button type="submit" class="btn-submit">Gerar PDF</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Cadastro Psicólogo -->
+    <div id="signupModal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeSignupModal()">&times;</span>
+            <h2>Cadastro de Psicólogo</h2>
+            <form id="signupForm" onsubmit="handleSignup(event)">
+                <label for="signupNome">Nome Completo</label>
+                <input type="text" id="signupNome" placeholder="Seu nome completo" required>
+                <label for="signupEmail">E-mail</label>
+                <input type="email" id="signupEmail" placeholder="seu@email.com" required>
+                <label for="signupPassword">Senha</label>
+                <input type="password" id="signupPassword" placeholder="Mínimo 6 caracteres" required minlength="6">
+                <label for="signupCRP">CRP (Opcional)</label>
+                <input type="text" id="signupCRP" placeholder="CRP 00/00000">
+                <button type="submit" class="btn-submit">Cadastrar</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

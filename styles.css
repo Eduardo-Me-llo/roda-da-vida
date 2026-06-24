@@ -1,0 +1,408 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f7f6;
+    color: #333;
+}
+
+/* Estilo das Abas */
+.tabs {
+    display: flex;
+    background-color: #2c3e50;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+    flex-wrap: wrap;
+}
+.tab-link {
+    padding: 15px 20px;
+    color: #fff;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    font-size: 1em;
+    font-weight: bold;
+    flex: 1 1 auto;
+    text-align: center;
+    min-width: 120px;
+}
+.tab-link:hover {
+    background-color: #34495e;
+}
+.tab-link.active {
+    background-color: #18bc9c;
+}
+
+/* Conteúdo das Abas */
+.tab-content {
+    display: none;
+    padding: 20px;
+    text-align: center;
+}
+.tab-content.active {
+    display: block;
+}
+
+/* Estilo Roda Teen */
+.roda-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+}
+canvas {
+    background-color: #fff;
+    border-radius: 50%;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    cursor: pointer;
+    margin-bottom: 20px;
+    max-width: 100%;
+    height: auto;
+    touch-action: none;
+}
+.btn-submit {
+    background-color: #18bc9c;
+    color: #fff;
+    border: none;
+    padding: 12px 25px;
+    font-size: 1em;
+    font-weight: bold;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.3s;
+    width: 100%;
+    max-width: 300px;
+}
+.btn-submit:hover {
+    background-color: #128f76;
+}
+.btn-submit:disabled {
+    background-color: #95a5a6;
+    cursor: not-allowed;
+}
+
+/* Estilo dos Cards (Forças VIA) */
+.cards-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    justify-content: center;
+    padding: 10px;
+}
+.card-container {
+    perspective: 1000px;
+    width: 100%;
+    max-width: 250px;
+    height: 280px;
+}
+.card {
+    width: 100%;
+    height: 100%;
+    transition: transform 0.6s;
+    transform-style: preserve-3d;
+    cursor: pointer;
+    position: relative;
+}
+.card.flipped {
+    transform: rotateY(180deg);
+}
+.card-face {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    box-sizing: border-box;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+.card-front {
+    background-color: #fff;
+    color: #2c3e50;
+    font-size: 1.2em;
+    font-weight: bold;
+    border-bottom: 5px solid #18bc9c;
+}
+.card-back {
+    background-color: #18bc9c;
+    color: #fff;
+    transform: rotateY(180deg);
+    font-size: 0.95em;
+    line-height: 1.4;
+    text-align: left;
+    overflow-y: auto;
+}
+
+h1 {
+    color: #2c3e50;
+    margin-bottom: 10px;
+    font-size: 1.8em;
+}
+p.subtitle {
+    color: #7f8c8d;
+    margin-bottom: 30px;
+    font-size: 1em;
+    padding: 0 10px;
+}
+
+/* Estilo do Portal do Psicólogo */
+.login-box {
+    background-color: #fff;
+    border-radius: 12px;
+    padding: 30px 20px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    max-width: 400px;
+    width: 100%;
+    margin: 0 auto;
+}
+.login-box label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #2c3e50;
+    text-align: left;
+}
+.login-box input {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #bdc3c7;
+    border-radius: 5px;
+    font-size: 1em;
+    box-sizing: border-box;
+}
+.login-box input:focus {
+    outline: none;
+    border-color: #18bc9c;
+    box-shadow: 0 0 5px rgba(24, 188, 156, 0.3);
+}
+
+.submissions-list {
+    max-width: 600px;
+    width: 100%;
+    margin: 30px auto;
+    padding: 0 10px;
+}
+.submission-card {
+    background-color: #fff;
+    border-left: 5px solid #18bc9c;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 5px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.submission-title {
+    font-size: 1.1em;
+    font-weight: bold;
+    color: #2c3e50;
+    word-break: break-word;
+}
+.submission-meta {
+    font-size: 0.85em;
+    color: #7f8c8d;
+}
+.submission-card .btn-submit {
+    align-self: flex-start;
+    padding: 8px 16px;
+    font-size: 0.9em;
+    width: auto;
+}
+
+/* Estilo do Modal */
+.modal {
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.modal-content {
+    background-color: #fff;
+    padding: 30px 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    width: 100%;
+    max-width: 400px;
+    position: relative;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.modal-close {
+    position: absolute;
+    right: 15px;
+    top: 15px;
+    font-size: 28px;
+    font-weight: bold;
+    color: #7f8c8d;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+.modal-close:hover {
+    color: #e74c3c;
+}
+
+.modal-content h2 {
+    margin-top: 0;
+    color: #2c3e50;
+}
+
+.modal-content form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.modal-content label {
+    font-weight: bold;
+    color: #2c3e50;
+    margin-top: 8px;
+    text-align: left;
+}
+
+.modal-content input {
+    padding: 10px;
+    border: 1px solid #bdc3c7;
+    border-radius: 5px;
+    font-size: 1em;
+}
+
+.modal-content input:focus {
+    outline: none;
+    border-color: #18bc9c;
+    box-shadow: 0 0 5px rgba(24, 188, 156, 0.3);
+}
+
+/* Loading spinner */
+.loading {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255,255,255,.3);
+    border-radius: 50%;
+    border-top-color: #fff;
+    animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Media Queries para Mobile */
+@media (max-width: 768px) {
+    .tab-link {
+        padding: 12px 15px;
+        font-size: 0.9em;
+        min-width: 100px;
+    }
+
+    .tab-content {
+        padding: 15px 10px;
+    }
+
+    h1 {
+        font-size: 1.5em;
+    }
+
+    p.subtitle {
+        font-size: 0.9em;
+    }
+
+    .card-container {
+        width: 100%;
+        max-width: 280px;
+        height: 300px;
+    }
+
+    .card-front {
+        font-size: 1.1em;
+    }
+
+    .card-back {
+        font-size: 0.9em;
+        padding: 15px;
+    }
+
+    .btn-submit {
+        font-size: 0.95em;
+        padding: 10px 20px;
+    }
+
+    .modal-content {
+        padding: 20px 15px;
+    }
+
+    .modal-content h2 {
+        font-size: 1.3em;
+    }
+
+    .submission-title {
+        font-size: 1em;
+    }
+
+    .portal-content > div:first-child {
+        flex-direction: column !important;
+        gap: 15px;
+    }
+
+    .portal-content > div:first-child > div {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        width: 100%;
+    }
+
+    .portal-content > div:first-child > div button {
+        width: 100%;
+        margin: 0 !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .tabs {
+        flex-direction: column;
+    }
+
+    .tab-link {
+        width: 100%;
+        text-align: center;
+    }
+
+    h1 {
+        font-size: 1.3em;
+    }
+
+    .card-container {
+        max-width: 100%;
+        height: 280px;
+    }
+
+    .card-front {
+        font-size: 1em;
+    }
+
+    .card-back {
+        font-size: 0.85em;
+    }
+}
