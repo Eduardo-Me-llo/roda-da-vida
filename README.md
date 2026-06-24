@@ -5,7 +5,7 @@ Sistema web interativo para psicólogos realizarem avaliações com adolescentes
 ## 🚀 Funcionalidades
 
 - **Roda da Vida Adolescente**: Avaliação interativa em 8 áreas da vida
-- **Forças VIA**: 24 cards com forças de caráter
+- **Forças**: 24 cards com forças de caráter
 - **Portal do Psicólogo**: Sistema de autenticação e gestão de submissões
 - **Geração de PDF**: Relatórios automáticos das avaliações
 - **Responsivo**: Otimizado para celular e desktop
@@ -19,12 +19,12 @@ Sistema web interativo para psicólogos realizarem avaliações com adolescentes
 - Supabase (Backend as a Service)
 - jsPDF (geração de PDFs)
 
-## 📦 Instalação
+## Instalação
 
 ### 1. Clone o repositório
 
 ```bash
-git clone https://github.com/SEU_USUARIO/roda-da-vida.git
+git clone https://github.com/Eduardo-Me-llo/roda-da-vida.git
 cd roda-da-vida
 ```
 
@@ -41,8 +41,8 @@ cd roda-da-vida
 Edite o arquivo `config.js` e substitua:
 
 ```javascript
-const SUPABASE_URL = 'sua-url-aqui';
-const SUPABASE_ANON_KEY = 'sua-chave-aqui';
+const SUPABASE_URL = 'https://lxlezgufbdrqmedvhpcf.supabase.co';
+const SUPABASE_ANON_KEY = 'postgresql://postgres:[Vascodagama1998!]@db.lxlezgufbdrqmedvhpcf.supabase.co:5432/postgres';
 ```
 
 ### 4. Configure o banco de dados
