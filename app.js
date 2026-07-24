@@ -1,9 +1,22 @@
 /* ============================
-   Variáveis Globais
+   Variáveis Globais e Fallback Supabase
    ============================ */
 let currentUser = null;
 let currentWheelType = '24forcas'; // '24forcas' ou 'teen'
 let isPdfOnlyDownload = false;
+
+// Fallback de segurança para Vercel/Produção caso config.js esteja no .gitignore
+if (typeof window.supabase === 'undefined' || !window.supabase.auth) {
+    if (typeof supabase !== 'undefined' && supabase.createClient) {
+        try {
+            const SUPABASE_URL = window.SUPABASE_URL || 'https://lxlezgufbdrqmedvhpcf.supabase.co';
+            const SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.dummy';
+            window.supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        } catch (e) {
+            console.warn('Supabase não inicializado.');
+        }
+    }
+}
 
 /* ============================
    Lógica do Menu Sanduíche e Abas
@@ -411,7 +424,6 @@ function drawWheel24() {
             ctx24.rotate(Math.PI);
         }
         
-        // Aplica o ajuste de escala da configuração manual
         const cfg = STRENGTH_LABEL_CONFIG[st.id] || { lines: [st.name.toUpperCase()], scale: 1.0 };
         const customFontSize = Math.max(6, Math.floor(baseLabelFontSize * (cfg.scale || 1.0)));
         
@@ -855,7 +867,7 @@ async function handleSubmitRoda(event) {
         const prefix = is24 ? 'roda_forcas_24_' : 'roda_vida_';
         const fileName = `${prefix}${name.replace(/\s+/g, '_')}_${Date.now()}.pdf`;
 
-        // Se o usuário clicou no botão "Baixar Apenas PDF", realiza o download direto no navegador sem salvar no banco
+        // Se o usuário clicou no botão "Baixar Apenas PDF", realiza o download direto sem salvar no banco
         if (isPdfOnlyDownload) {
             doc.save(fileName);
             closeNomeModal();
@@ -865,9 +877,9 @@ async function handleSubmitRoda(event) {
         }
 
         // Tenta salvar no Supabase se houver conexão configurada
-        if (typeof supabase !== 'undefined' && supabase.storage) {
+        if (typeof window.supabase !== 'undefined' && window.supabase.storage) {
             const pdfBlob = doc.output('blob');
-            const { data: uploadData, error: uploadError } = await supabase.storage
+            const { data: uploadData, error: uploadError } = await window.supabase.storage
                 .from('pdfs')
                 .upload(fileName, pdfBlob, {
                     contentType: 'application/pdf',
@@ -875,11 +887,11 @@ async function handleSubmitRoda(event) {
                 });
             
             if (!uploadError && uploadData) {
-                const { data: urlData } = supabase.storage
+                const { data: urlData } = window.supabase.storage
                     .from('pdfs')
                     .getPublicUrl(fileName);
                 
-                await supabase
+                await window.supabase
                     .from('submissions')
                     .insert({
                         patient_name: name,
@@ -959,7 +971,7 @@ async function handlePsicoLogin(event) {
     submitBtn.innerHTML = '<span class="loading"></span> Entrando...';
     
     try {
-        const { data, error } = await supabase.auth.signInWithPassword({
+        const { data, error } = await window.supabase.auth.signInWithPassword({
             email: email,
             password: password
         });
@@ -981,7 +993,9 @@ async function handlePsicoLogin(event) {
 }
 
 async function handlePsicoLogout() {
-    await supabase.auth.signOut();
+    if (window.supabase && window.supabase.auth) {
+        await window.supabase.auth.signOut();
+    }
     currentUser = null;
     document.getElementById('loginBox').style.display = 'block';
     document.getElementById('portalContent').style.display = 'none';
@@ -1016,7 +1030,7 @@ async function handleSignup(event) {
     submitBtn.innerHTML = '<span class="loading"></span> Cadastrando...';
     
     try {
-        const { data, error } = await supabase.auth.signUp({
+        const { data, error } = await window.supabase.auth.signUp({
             email: email,
             password: password,
             options: {
@@ -1047,7 +1061,7 @@ async function loadSubmissions() {
     list.innerHTML = '<p>Carregando submissões...</p>';
     
     try {
-        const { data, error } = await supabase
+        const { data, error } = await window.supabase
             .from('submissions')
             .select('*')
             .order('created_at', { ascending: false });
@@ -1089,7 +1103,7 @@ async function deleteSubmission(id) {
     if (!confirm('Deseja realmente excluir esta submissão?')) return;
     
     try {
-        const { error } = await supabase
+        const { error } = await window.supabase
             .from('submissions')
             .delete()
             .eq('id', id);
