@@ -2,51 +2,710 @@
    Variáveis Globais
    ============================ */
 let currentUser = null;
+let currentWheelType = '24forcas'; // '24forcas' ou 'teen'
+let isPdfOnlyDownload = false;
 
 /* ============================
-   Lógica das Abas
+   Lógica do Menu Sanduíche e Abas
    ============================ */
+function toggleMenu() {
+    const tabsList = document.getElementById('tabsList');
+    if (tabsList) {
+        tabsList.classList.toggle('open');
+    }
+}
+
+function selectTab(tabId, element) {
+    openTab(tabId, element);
+    const tabsList = document.getElementById('tabsList');
+    if (tabsList && window.innerWidth <= 768) {
+        tabsList.classList.remove('open');
+    }
+}
+
 function openTab(tabId, element) {
     document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
     document.querySelectorAll('.tab-link').forEach(link => link.classList.remove('active'));
     
-    document.getElementById(tabId).classList.add('active');
-    element.classList.add('active');
+    const targetTab = document.getElementById(tabId);
+    if (targetTab) targetTab.classList.add('active');
+    if (element) element.classList.add('active');
     
-    // Se abrir portal e estiver logado, carregar submissões
-    if (tabId === 'portal-psico' && currentUser) {
+    if (tabId === 'roda-24-forcas') {
+        currentWheelType = '24forcas';
+        setTimeout(() => {
+            resizeCanvas24();
+            drawWheel24();
+        }, 50);
+    } else if (tabId === 'roda-teen') {
+        currentWheelType = 'teen';
+        setTimeout(() => {
+            resizeCanvasTeen();
+            drawWheel();
+        }, 50);
+    } else if (tabId === 'portal-psico' && currentUser) {
         loadSubmissions();
     }
 }
 
 /* ============================
-   Lógica da Roda da Vida Teen
+   Dados das 6 Virtudes e 24 Forças VIA
    ============================ */
-const canvas = document.getElementById('rodaCanvas');
-const ctx = canvas.getContext('2d');
-
-// Tornar canvas responsivo
-let canvasSize = Math.min(600, window.innerWidth - 40);
-canvas.width = canvasSize;
-canvas.height = canvasSize;
-
-// Atualizar tamanho do canvas quando a janela for redimensionada
-window.addEventListener('resize', () => {
-    const oldSize = canvasSize;
-    canvasSize = Math.min(600, window.innerWidth - 40);
-    if (canvasSize !== oldSize) {
-        canvas.width = canvasSize;
-        canvas.height = canvasSize;
-        drawWheel();
+const VIRTUES_DATA = [
+    {
+        id: 'sabedoria',
+        code: 'A',
+        name: 'SABEDORIA E CONHECIMENTO',
+        fullName: 'A) SABEDORIA E CONHECIMENTO',
+        colorPastel: '#bde0fe', // Pastel Ciano/Azul
+        colorFill: '#3a86ff',
+        colorArc: '#a2d2ff',
+        colorText: '#03045e',
+        strengths: [
+            { id: 'criatividade', name: 'Criatividade' },
+            { id: 'curiosidade', name: 'Curiosidade' },
+            { id: 'criterio', name: 'Pensamento Crítico e Critério' },
+            { id: 'aprendizado', name: 'Amor ao Aprendizado' },
+            { id: 'perspectiva', name: 'Perspectiva' }
+        ]
+    },
+    {
+        id: 'coragem',
+        code: 'B',
+        name: 'CORAGEM',
+        fullName: 'B) CORAGEM',
+        colorPastel: '#fefae0', // Pastel Amarelo/Dourado
+        colorFill: '#ffb703',
+        colorArc: '#ffe5ec',
+        colorText: '#7f5539',
+        strengths: [
+            { id: 'bravura', name: 'Heroísmo e Bravura' },
+            { id: 'perseveranca', name: 'Perseverança' },
+            { id: 'honestidade', name: 'Autenticidade e Honestidade' },
+            { id: 'vitalidade', name: 'Vitalidade' }
+        ]
+    },
+    {
+        id: 'humanidade',
+        code: 'C',
+        name: 'HUMANIDADE',
+        fullName: 'C) HUMANIDADE',
+        colorPastel: '#ffccd5', // Pastel Rosa/Vermelho
+        colorFill: '#ff4d6d',
+        colorArc: '#ffb5a7',
+        colorText: '#590d22',
+        strengths: [
+            { id: 'amor', name: 'Amor' },
+            { id: 'generosidade', name: 'Generosidade' },
+            { id: 'inteligencia_social', name: 'Inteligência Social' }
+        ]
+    },
+    {
+        id: 'justica',
+        code: 'D',
+        name: 'JUSTIÇA',
+        fullName: 'D) JUSTIÇA',
+        colorPastel: '#ffe5d9', // Pastel Laranja/Pêssego
+        colorFill: '#f4a261',
+        colorArc: '#fbc4ab',
+        colorText: '#6b705c',
+        strengths: [
+            { id: 'trabalho_equipe', name: 'Trabalho em Equipe' },
+            { id: 'lideranca', name: 'Liderança' },
+            { id: 'justica', name: 'Justiça/Equidade' }
+        ]
+    },
+    {
+        id: 'temperanca',
+        code: 'E',
+        name: 'TEMPERANÇA',
+        fullName: 'E) TEMPERANÇA',
+        colorPastel: '#d8f3dc', // Pastel Verde
+        colorFill: '#2a9d8f',
+        colorArc: '#b7e4c7',
+        colorText: '#1b4332',
+        strengths: [
+            { id: 'perdao', name: 'Perdão' },
+            { id: 'humildade', name: 'Humildade' },
+            { id: 'prudencia', name: 'Prudência' },
+            { id: 'autocontrole', name: 'Autocontrole' }
+        ]
+    },
+    {
+        id: 'transcendencia',
+        code: 'F',
+        name: 'TRANSCENDÊNCIA',
+        fullName: 'F) TRANSCENDÊNCIA',
+        colorPastel: '#e0b1cb', // Pastel Roxo/Lilás
+        colorFill: '#9d4edd',
+        colorArc: '#be95c4',
+        colorText: '#3c096c',
+        strengths: [
+            { id: 'apreciacao_beleza', name: 'Apreciação da Beleza' },
+            { id: 'gratidao', name: 'Gratidão' },
+            { id: 'esperanca', name: 'Esperança' },
+            { id: 'humor', name: 'Humor' },
+            { id: 'espiritualidade', name: 'Espiritualidade' }
+        ]
     }
+];
+
+/* ============================================================
+   Configuração Manual de Fontes e Linhas para as 24 Forças
+   (Edite o 'scale' para diminuir/aumentar a fonte de palavras longas
+    e 'lines' para personalizar as quebras de linha no gráfico)
+   ============================================================ */
+const STRENGTH_LABEL_CONFIG = {
+    'criatividade': { lines: ['CRIATIVIDADE'], scale: 1.0 },
+    'curiosidade': { lines: ['CURIOSIDADE'], scale: 1.0 },
+    'criterio': { lines: ['PENSAMENTO', 'CRÍTICO'], scale: 0.82 },
+    'aprendizado': { lines: ['AMOR AO', 'APRENDIZADO'], scale: 0.88 },
+    'perspectiva': { lines: ['PERSPECTIVA'], scale: 0.92 },
+    'bravura': { lines: ['HEROÍSMO E', 'BRAVURA'], scale: 0.88 },
+    'perseveranca': { lines: ['PERSEVERANÇA'], scale: 0.88 },
+    'honestidade': { lines: ['AUTENTICIDADE', 'E HONESTIDADE'], scale: 0.82 },
+    'vitalidade': { lines: ['VITALIDADE'], scale: 1.0 },
+    'amor': { lines: ['AMOR'], scale: 1.0 },
+    'generosidade': { lines: ['GENEROSIDADE'], scale: 0.9 },
+    'inteligencia_social': { lines: ['INTELIGÊNCIA', 'SOCIAL'], scale: 0.82 },
+    'trabalho_equipe': { lines: ['TRABALHO EM', 'EQUIPE'], scale: 0.88 },
+    'lideranca': { lines: ['LIDERANÇA'], scale: 1.0 },
+    'justica': { lines: ['JUSTIÇA /', 'EQUIDADE'], scale: 0.88 },
+    'perdao': { lines: ['PERDÃO'], scale: 1.0 },
+    'humildade': { lines: ['HUMILDADE'], scale: 0.92 },
+    'prudencia': { lines: ['PRUDÊNCIA'], scale: 1.0 },
+    'autocontrole': { lines: ['AUTO-', 'CONTROLE'], scale: 0.85 },
+    'apreciacao_beleza': { lines: ['APRECIAÇÃO', 'DA BELEZA'], scale: 0.80 },
+    'gratidao': { lines: ['GRATIDÃO'], scale: 1.0 },
+    'esperanca': { lines: ['ESPERANÇA'], scale: 1.0 },
+    'humor': { lines: ['HUMOR'], scale: 1.0 },
+    'espiritualidade': { lines: ['ESPIRITUALIDADE'], scale: 0.78 }
+};
+
+// Array sequencial plano de 24 forças
+const ALL_24_STRENGTHS = [];
+VIRTUES_DATA.forEach(v => {
+    v.strengths.forEach(s => {
+        ALL_24_STRENGTHS.push({
+            ...s,
+            virtueId: v.id,
+            virtueName: v.name,
+            virtueCode: v.code,
+            virtueFullName: v.fullName,
+            colorPastel: v.colorPastel,
+            colorFill: v.colorFill,
+            colorArc: v.colorArc,
+            colorText: v.colorText
+        });
+    });
 });
 
-const getCenterAndRadius = () => {
-    const size = canvas.width;
+let wheelState24 = new Array(24).fill(0);
+let hoveredSector24 = -1;
+
+/* ============================
+   Lógica da Roda das 24 Forças VIA (Canvas)
+   ============================ */
+const canvas24 = document.getElementById('roda24Canvas');
+const ctx24 = canvas24 ? canvas24.getContext('2d') : null;
+
+function getCenterAndRadius24() {
+    if (!canvas24) return { cx: 375, cy: 375, maxR: 210, strengthR: 290, virtueR: 350 };
+    const displaySize = parseFloat(canvas24.style.width) || canvas24.width;
     return {
-        cx: size / 2,
-        cy: size / 2,
-        maxR: size * 0.38
+        cx: displaySize / 2,
+        cy: displaySize / 2,
+        maxR: displaySize * 0.28,        // Nível 10 da teia
+        strengthR: displaySize * 0.385,   // Borda do nome das 24 Forças
+        virtueR: displaySize * 0.465      // Borda externa dos 6 Arcos de Virtudes
+    };
+}
+
+function resizeCanvas24() {
+    if (!canvas24) return;
+    let displaySize = Math.min(750, Math.max(300, window.innerWidth - 20));
+    canvas24.style.width = displaySize + 'px';
+    canvas24.style.height = displaySize + 'px';
+    
+    const dpr = window.devicePixelRatio || 1;
+    canvas24.width = Math.floor(displaySize * dpr);
+    canvas24.height = Math.floor(displaySize * dpr);
+    
+    if (ctx24) {
+        ctx24.resetTransform ? ctx24.resetTransform() : ctx24.setTransform(1, 0, 0, 1, 0, 0);
+        ctx24.scale(dpr, dpr);
+    }
+    drawWheel24();
+}
+
+function drawCurvedText(ctx, text, cx, cy, radius, startAngle, endAngle, color, fontSize) {
+    ctx.save();
+    ctx.font = `bold ${fontSize}px Arial, sans-serif`;
+    ctx.fillStyle = color;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    
+    const midAngle = (startAngle + endAngle) / 2;
+    const textLen = text.length;
+    if (textLen === 0) {
+        ctx.restore();
+        return;
+    }
+    
+    const textWidth = ctx.measureText(text).width;
+    const textAngle = (textWidth * 1.08) / radius;
+    const stepAngle = textLen > 1 ? textAngle / (textLen - 1) : 0;
+    
+    const isBottom = Math.sin(midAngle) > 0;
+    
+    if (!isBottom) {
+        const firstAngle = midAngle - (textAngle / 2);
+        for (let i = 0; i < textLen; i++) {
+            let charAngle = firstAngle + i * stepAngle;
+            let x = cx + radius * Math.cos(charAngle);
+            let y = cy + radius * Math.sin(charAngle);
+            
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.rotate(charAngle + Math.PI / 2);
+            ctx.fillText(text[i], 0, 0);
+            ctx.restore();
+        }
+    } else {
+        const firstAngle = midAngle + (textAngle / 2);
+        for (let i = 0; i < textLen; i++) {
+            let charAngle = firstAngle - i * stepAngle;
+            let x = cx + radius * Math.cos(charAngle);
+            let y = cy + radius * Math.sin(charAngle);
+            
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.rotate(charAngle - Math.PI / 2);
+            ctx.fillText(text[i], 0, 0);
+            ctx.restore();
+        }
+    }
+    
+    ctx.restore();
+}
+
+function drawWheel24() {
+    if (!canvas24 || !ctx24) return;
+    const { cx, cy, maxR, strengthR, virtueR } = getCenterAndRadius24();
+    const displaySize = cx * 2;
+    
+    ctx24.clearRect(0, 0, displaySize, displaySize);
+    
+    ctx24.fillStyle = '#ffffff';
+    ctx24.fillRect(0, 0, displaySize, displaySize);
+
+    // 1. Fatias pastel para o nome das 24 Forças
+    ALL_24_STRENGTHS.forEach((st, i) => {
+        let startAngle = (i * 15 - 90) * Math.PI / 180;
+        let endAngle = ((i + 1) * 15 - 90) * Math.PI / 180;
+        
+        ctx24.beginPath();
+        ctx24.arc(cx, cy, strengthR, startAngle, endAngle);
+        ctx24.arc(cx, cy, maxR, endAngle, startAngle, true);
+        ctx24.closePath();
+        ctx24.fillStyle = st.colorPastel;
+        ctx24.fill();
+        ctx24.lineWidth = 1;
+        ctx24.strokeStyle = '#ffffff';
+        ctx24.stroke();
+    });
+
+    // 2. Fatias preenchidas do centro até o nível X
+    ALL_24_STRENGTHS.forEach((st, i) => {
+        let level = wheelState24[i];
+        if (level > 0) {
+            let startAngle = (i * 15 - 90) * Math.PI / 180;
+            let endAngle = ((i + 1) * 15 - 90) * Math.PI / 180;
+            
+            ctx24.beginPath();
+            ctx24.moveTo(cx, cy);
+            ctx24.arc(cx, cy, (level / 10) * maxR, startAngle, endAngle);
+            ctx24.closePath();
+            ctx24.fillStyle = st.colorFill;
+            ctx24.fill();
+        }
+    });
+
+    // 3. Efeito Hover
+    if (hoveredSector24 >= 0 && hoveredSector24 < 24) {
+        let i = hoveredSector24;
+        let startAngle = (i * 15 - 90) * Math.PI / 180;
+        let endAngle = ((i + 1) * 15 - 90) * Math.PI / 180;
+        
+        ctx24.beginPath();
+        ctx24.moveTo(cx, cy);
+        ctx24.arc(cx, cy, virtueR, startAngle, endAngle);
+        ctx24.closePath();
+        ctx24.fillStyle = 'rgba(255, 255, 255, 0.28)';
+        ctx24.fill();
+        ctx24.lineWidth = 2.5;
+        ctx24.strokeStyle = '#2c3e50';
+        ctx24.stroke();
+    }
+
+    // 4. Teia concêntrica de 10 níveis
+    ctx24.lineWidth = 1;
+    for (let r = 1; r <= 10; r++) {
+        ctx24.beginPath();
+        ctx24.arc(cx, cy, (r / 10) * maxR, 0, 2 * Math.PI);
+        ctx24.strokeStyle = (r === 10) ? '#2c3e50' : 'rgba(160, 160, 160, 0.55)';
+        ctx24.stroke();
+    }
+
+    // 5. Linhas radiais divisórias
+    ctx24.lineWidth = 1;
+    ctx24.strokeStyle = 'rgba(150, 150, 150, 0.55)';
+    for (let i = 0; i < 24; i++) {
+        let angle = (i * 15 - 90) * Math.PI / 180;
+        ctx24.beginPath();
+        ctx24.moveTo(cx, cy);
+        ctx24.lineTo(cx + strengthR * Math.cos(angle), cy + strengthR * Math.sin(angle));
+        ctx24.stroke();
+    }
+
+    // 6. Números 1 a 10
+    const numFontSize = Math.max(7, Math.floor(maxR / 20));
+    ctx24.textAlign = 'center';
+    ctx24.textBaseline = 'middle';
+
+    for (let i = 0; i < 24; i++) {
+        let angleMid = (i * 15 + 7.5 - 90) * Math.PI / 180;
+        
+        for (let r = 1; r <= 10; r++) {
+            let rDist = ((r - 0.5) / 10) * maxR;
+            let numX = cx + rDist * Math.cos(angleMid);
+            let numY = cy + rDist * Math.sin(angleMid);
+            
+            ctx24.font = `bold ${numFontSize}px Arial, sans-serif`;
+            if (wheelState24[i] >= r) {
+                ctx24.fillStyle = '#ffffff';
+                ctx24.shadowColor = 'rgba(0, 0, 0, 0.6)';
+                ctx24.shadowBlur = 3;
+            } else {
+                ctx24.fillStyle = '#666666';
+                ctx24.shadowBlur = 0;
+            }
+            ctx24.fillText(r, numX, numY);
+            ctx24.shadowBlur = 0;
+        }
+    }
+
+    // 7. Nomes das 24 Forças radiais com tamanho ajustável individualmente
+    const baseLabelFontSize = Math.max(7, Math.floor(maxR / 20));
+    
+    ALL_24_STRENGTHS.forEach((st, i) => {
+        let angleMid = (i * 15 + 7.5 - 90) * Math.PI / 180;
+        let midR = (maxR + strengthR) / 2;
+        
+        ctx24.save();
+        ctx24.translate(cx, cy);
+        ctx24.rotate(angleMid);
+        ctx24.translate(midR, 0);
+        
+        if (angleMid > Math.PI / 2 || angleMid < -Math.PI / 2) {
+            ctx24.rotate(Math.PI);
+        }
+        
+        // Aplica o ajuste de escala da configuração manual
+        const cfg = STRENGTH_LABEL_CONFIG[st.id] || { lines: [st.name.toUpperCase()], scale: 1.0 };
+        const customFontSize = Math.max(6, Math.floor(baseLabelFontSize * (cfg.scale || 1.0)));
+        
+        ctx24.font = `bold ${customFontSize}px Arial, sans-serif`;
+        ctx24.fillStyle = st.colorText || '#2c3e50';
+        ctx24.textAlign = 'center';
+        ctx24.textBaseline = 'middle';
+        
+        const lines = cfg.lines || [st.name.toUpperCase()];
+        if (lines.length === 1) {
+            ctx24.fillText(lines[0], 0, 0);
+        } else {
+            const lineHeight = customFontSize + 1.5;
+            const startY = -((lines.length - 1) * lineHeight) / 2;
+            lines.forEach((line, lIdx) => {
+                ctx24.fillText(line, 0, startY + lIdx * lineHeight);
+            });
+        }
+        
+        ctx24.restore();
+    });
+
+    // 8. 6 Arcos das Virtudes
+    let currentSector = 0;
+    VIRTUES_DATA.forEach((virtue) => {
+        const numSec = virtue.strengths.length;
+        const startAngle = (currentSector * 15 - 90) * Math.PI / 180;
+        const endAngle = ((currentSector + numSec) * 15 - 90) * Math.PI / 180;
+        
+        ctx24.beginPath();
+        ctx24.arc(cx, cy, virtueR, startAngle, endAngle);
+        ctx24.arc(cx, cy, strengthR, endAngle, startAngle, true);
+        ctx24.closePath();
+        ctx24.fillStyle = virtue.colorArc;
+        ctx24.fill();
+        ctx24.lineWidth = 2;
+        ctx24.strokeStyle = '#ffffff';
+        ctx24.stroke();
+        
+        drawCurvedText(
+            ctx24,
+            virtue.fullName,
+            cx, cy,
+            (strengthR + virtueR) / 2,
+            startAngle,
+            endAngle,
+            virtue.colorText,
+            Math.max(8, Math.floor(maxR / 17))
+        );
+        
+        currentSector += numSec;
+    });
+}
+
+function getEventCoordinatesCanvas(e, canvasEl) {
+    const rect = canvasEl.getBoundingClientRect();
+    let clientX, clientY;
+    
+    if (e.touches && e.touches.length > 0) {
+        clientX = e.touches[0].clientX;
+        clientY = e.touches[0].clientY;
+    } else if (e.changedTouches && e.changedTouches.length > 0) {
+        clientX = e.changedTouches[0].clientX;
+        clientY = e.changedTouches[0].clientY;
+    } else {
+        clientX = e.clientX;
+        clientY = e.clientY;
+    }
+    
+    return {
+        x: clientX - rect.left,
+        y: clientY - rect.top
+    };
+}
+
+function handleInteraction24(e) {
+    if (e.type === 'touchstart') e.preventDefault();
+    if (!canvas24) return;
+    
+    const { cx, cy, maxR } = getCenterAndRadius24();
+    const coords = getEventCoordinatesCanvas(e, canvas24);
+    const x = coords.x - cx;
+    const y = coords.y - cy;
+    const r = Math.sqrt(x*x + y*y);
+    
+    if (r > maxR) return;
+    
+    let angle = Math.atan2(y, x) * 180 / Math.PI;
+    angle = Math.round(angle);
+    angle += 90;
+    if (angle < 0) angle += 360;
+    
+    const catIndex = Math.floor(angle / 15);
+    const level = Math.ceil((r / maxR) * 10);
+    
+    if (catIndex >= 0 && catIndex < 24 && level >= 1 && level <= 10) {
+        wheelState24[catIndex] = level;
+        drawWheel24();
+        updateSummary24();
+    }
+}
+
+function handleMouseMove24(e) {
+    if (!canvas24) return;
+    const { cx, cy, virtueR } = getCenterAndRadius24();
+    const coords = getEventCoordinatesCanvas(e, canvas24);
+    const x = coords.x - cx;
+    const y = coords.y - cy;
+    const r = Math.sqrt(x*x + y*y);
+    
+    if (r <= virtueR && r > 0) {
+        let angle = Math.atan2(y, x) * 180 / Math.PI;
+        angle += 90;
+        if (angle < 0) angle += 360;
+        const catIndex = Math.floor(angle / 15);
+        if (catIndex !== hoveredSector24) {
+            hoveredSector24 = catIndex;
+            canvas24.style.cursor = 'pointer';
+            drawWheel24();
+        }
+    } else {
+        if (hoveredSector24 !== -1) {
+            hoveredSector24 = -1;
+            canvas24.style.cursor = 'default';
+            drawWheel24();
+        }
+    }
+}
+
+function handleMouseLeave24() {
+    if (hoveredSector24 !== -1) {
+        hoveredSector24 = -1;
+        if (canvas24) canvas24.style.cursor = 'default';
+        drawWheel24();
+    }
+}
+
+function updateSummary24() {
+    const container = document.getElementById('summary24Container');
+    const grid = document.getElementById('virtuesSummaryGrid');
+    if (!container || !grid) return;
+    
+    container.style.display = 'block';
+    grid.innerHTML = '';
+    
+    let stIdx = 0;
+    VIRTUES_DATA.forEach(v => {
+        const vCard = document.createElement('div');
+        vCard.className = 'virtue-summary-card';
+        vCard.style.borderLeftColor = v.colorFill;
+        
+        let sum = 0;
+        let listHtml = '';
+        
+        v.strengths.forEach(st => {
+            const val = wheelState24[stIdx];
+            sum += val;
+            listHtml += `
+                <div class="strength-item">
+                    <span class="strength-name">${st.name}</span>
+                    <span class="strength-val" style="background-color: ${v.colorFill}; color: #fff;">${val}/10</span>
+                </div>
+            `;
+            stIdx++;
+        });
+        
+        const avg = (sum / v.strengths.length).toFixed(1);
+        
+        vCard.innerHTML = `
+            <div class="virtue-header" style="background-color: ${v.colorPastel}; color: ${v.colorText};">
+                <span class="virtue-title">${v.fullName}</span>
+                <span class="virtue-avg">Média: ${avg}</span>
+            </div>
+            <div class="virtue-body">
+                ${listHtml}
+            </div>
+        `;
+        grid.appendChild(vCard);
+    });
+}
+
+function resetWheel24() {
+    if (confirm('Deseja realmente limpar todas as pontuações?')) {
+        wheelState24 = new Array(24).fill(0);
+        drawWheel24();
+        updateSummary24();
+    }
+}
+
+function downloadPdfOnly24() {
+    currentWheelType = '24forcas';
+    isPdfOnlyDownload = true;
+    promptForName();
+}
+
+function downloadPdfOnlyTeen() {
+    currentWheelType = 'teen';
+    isPdfOnlyDownload = true;
+    promptForName();
+}
+
+function submitRoda24() {
+    currentWheelType = '24forcas';
+    isPdfOnlyDownload = false;
+    promptForName();
+}
+
+function createPdf24(name) {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF('p', 'mm', 'a4');
+    
+    doc.setFontSize(15);
+    doc.setTextColor(44, 62, 80);
+    doc.text('Relatório - Roda das 24 Forças de Caráter e Virtudes VIA', 14, 15);
+    
+    doc.setFontSize(10);
+    doc.setTextColor(127, 140, 141);
+    doc.text(`Paciente/Avaliado: ${name}`, 14, 22);
+    doc.text(`Data: ${new Date().toLocaleString('pt-BR')}`, 14, 27);
+    
+    if (canvas24) {
+        const imgData = canvas24.toDataURL('image/png');
+        doc.addImage(imgData, 'PNG', 30, 32, 150, 150);
+    }
+    
+    let yPos = 188;
+    doc.setFontSize(12);
+    doc.setTextColor(44, 62, 80);
+    doc.text('Resumo das Pontuações por Virtude:', 14, yPos);
+    yPos += 7;
+    
+    doc.setFontSize(9);
+    let stIdx = 0;
+    
+    VIRTUES_DATA.forEach(v => {
+        if (yPos > 270) {
+            doc.addPage();
+            yPos = 20;
+        }
+        
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(44, 62, 80);
+        doc.text(`${v.fullName}`, 14, yPos);
+        yPos += 5;
+        
+        doc.setFont('helvetica', 'normal');
+        v.strengths.forEach(st => {
+            const val = wheelState24[stIdx];
+            doc.text(`• ${st.name}: ${val}/10`, 18, yPos);
+            stIdx++;
+            yPos += 4.5;
+        });
+        yPos += 2;
+    });
+    
+    return doc;
+}
+
+if (canvas24) {
+    canvas24.addEventListener('click', handleInteraction24);
+    canvas24.addEventListener('touchstart', handleInteraction24, { passive: false });
+    canvas24.addEventListener('mousemove', handleMouseMove24);
+    canvas24.addEventListener('mouseleave', handleMouseLeave24);
+}
+
+/* ============================
+   Lógica da Roda da Vida Teen (8 áreas)
+   ============================ */
+const canvas = document.getElementById('rodaCanvas');
+const ctx = canvas ? canvas.getContext('2d') : null;
+
+function resizeCanvasTeen() {
+    if (!canvas) return;
+    let displaySize = Math.min(600, Math.max(300, window.innerWidth - 20));
+    canvas.style.width = displaySize + 'px';
+    canvas.style.height = displaySize + 'px';
+    
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = Math.floor(displaySize * dpr);
+    canvas.height = Math.floor(displaySize * dpr);
+    
+    if (ctx) {
+        ctx.resetTransform ? ctx.resetTransform() : ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.scale(dpr, dpr);
+    }
+    drawWheel();
+}
+
+const getCenterAndRadius = () => {
+    const displaySize = canvas ? (parseFloat(canvas.style.width) || canvas.width) : 600;
+    return {
+        cx: displaySize / 2,
+        cy: displaySize / 2,
+        maxR: displaySize * 0.38
     };
 };
 
@@ -64,10 +723,11 @@ const categories = [
 let wheelState = [0, 0, 0, 0, 0, 0, 0, 0];
 
 function drawWheel() {
+    if (!canvas || !ctx) return;
     const { cx, cy, maxR } = getCenterAndRadius();
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const displaySize = cx * 2;
+    ctx.clearRect(0, 0, displaySize, displaySize);
     
-    // 1. Desenhar Fatias Preenchidas
     for (let i = 0; i < 8; i++) {
         let startAngle = (i * 45 - 90) * Math.PI / 180;
         let endAngle = ((i + 1) * 45 - 90) * Math.PI / 180;
@@ -83,7 +743,6 @@ function drawWheel() {
         }
     }
     
-    // 2. Desenhar as 10 linhas circulares concêntricas (Níveis)
     ctx.lineWidth = 1.5;
     ctx.strokeStyle = '#ecf0f1';
     for (let r = 1; r <= 10; r++) {
@@ -92,7 +751,6 @@ function drawWheel() {
         ctx.stroke();
     }
     
-    // 3. Desenhar linhas divisórias das fatias
     ctx.strokeStyle = '#bdc3c7';
     ctx.lineWidth = 2;
     for (let i = 0; i < 8; i++) {
@@ -103,18 +761,15 @@ function drawWheel() {
         ctx.stroke();
     }
     
-    // 4. Desenhar os Títulos Externos e Números
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     
-    // Ajustar tamanho da fonte baseado no tamanho do canvas
-    const fontSize = Math.max(8, Math.floor(canvasSize / 60));
+    const fontSize = Math.max(8, Math.floor(cx / 30));
     const titleOffset = Math.floor(maxR / 6.5);
     
     for (let i = 0; i < 8; i++) {
         let angleCentro = (i * 45 + 22.5 - 90) * Math.PI / 180;
         
-        // Textos externos
         let titleX = cx + (maxR + titleOffset) * Math.cos(angleCentro);
         let titleY = cy + (maxR + titleOffset) * Math.sin(angleCentro);
         ctx.font = `bold ${fontSize}px Arial`;
@@ -124,52 +779,31 @@ function drawWheel() {
             ctx.fillText(line, titleX, titleY + (idx * (fontSize + 2)));
         });
         
-        // Desenhar números de 1 a 10 no meio de cada nível
         for (let r = 1; r <= 10; r++) {
             let numX = cx + ((r / 10) * maxR - maxR / 20) * Math.cos(angleCentro);
             let numY = cy + ((r / 10) * maxR - maxR / 20) * Math.sin(angleCentro);
             
             ctx.font = `bold ${fontSize}px Arial`;
-            // Se o número estiver pintado, deixa branco; senão, cinza
             ctx.fillStyle = (wheelState[i] >= r) ? '#ffffff' : '#95a5a6';
             ctx.fillText(r, numX, numY);
         }
     }
 }
 
-// Função para obter coordenadas do evento (mouse ou touch)
-function getEventCoordinates(e) {
-    const rect = canvas.getBoundingClientRect();
-    let clientX, clientY;
-    
-    if (e.touches && e.touches.length > 0) {
-        clientX = e.touches[0].clientX;
-        clientY = e.touches[0].clientY;
-    } else {
-        clientX = e.clientX;
-        clientY = e.clientY;
-    }
-    
-    return {
-        x: clientX - rect.left,
-        y: clientY - rect.top
-    };
-}
-
-// Função para processar clique/toque
 function handleInteraction(e) {
-    e.preventDefault();
+    if (e.type === 'touchstart') e.preventDefault();
+    if (!canvas) return;
     const { cx, cy, maxR } = getCenterAndRadius();
-    const coords = getEventCoordinates(e);
+    const coords = getEventCoordinatesCanvas(e, canvas);
     const x = coords.x - cx;
     const y = coords.y - cy;
     const r = Math.sqrt(x*x + y*y);
     
-    if(r > maxR) return; // Clique fora da roda
+    if (r > maxR) return;
     
     let angle = Math.atan2(y, x) * 180 / Math.PI;
     angle = Math.round(angle);
-    angle += 90; // Ajusta o zero pro topo
+    angle += 90;
     if (angle < 0) angle += 360;
     
     const catIndex = Math.floor(angle / 45);
@@ -179,17 +813,26 @@ function handleInteraction(e) {
     drawWheel();
 }
 
-// Evento de clique e touch
-canvas.addEventListener('click', handleInteraction);
-canvas.addEventListener('touchstart', handleInteraction);
+if (canvas) {
+    canvas.addEventListener('click', handleInteraction);
+    canvas.addEventListener('touchstart', handleInteraction, { passive: false });
+}
+
+window.addEventListener('resize', () => {
+    resizeCanvasTeen();
+    resizeCanvas24();
+});
 
 function promptForName() {
-    document.getElementById('nomeModal').style.display = 'flex';
+    const modal = document.getElementById('nomeModal');
+    if (modal) modal.style.display = 'flex';
 }
 
 function closeNomeModal() {
-    document.getElementById('nomeModal').style.display = 'none';
-    document.getElementById('nomeForm').reset();
+    const modal = document.getElementById('nomeModal');
+    if (modal) modal.style.display = 'none';
+    const form = document.getElementById('nomeForm');
+    if (form) form.reset();
 }
 
 async function handleSubmitRoda(event) {
@@ -204,57 +847,70 @@ async function handleSubmitRoda(event) {
     const submitBtn = event.target.querySelector('button[type="submit"]');
     const originalText = submitBtn.textContent;
     submitBtn.disabled = true;
-    submitBtn.innerHTML = '<span class="loading"></span> Gerando...';
+    submitBtn.innerHTML = '<span class="loading"></span> Gerando PDF...';
 
     try {
-        const doc = createPdf(name);
-        const pdfBlob = doc.output('blob');
+        const is24 = (currentWheelType === '24forcas');
+        const doc = is24 ? createPdf24(name) : createPdf(name);
+        const prefix = is24 ? 'roda_forcas_24_' : 'roda_vida_';
+        const fileName = `${prefix}${name.replace(/\s+/g, '_')}_${Date.now()}.pdf`;
+
+        // Se o usuário clicou no botão "Baixar Apenas PDF", realiza o download direto no navegador sem salvar no banco
+        if (isPdfOnlyDownload) {
+            doc.save(fileName);
+            closeNomeModal();
+            isPdfOnlyDownload = false;
+            alert('PDF baixado com sucesso!');
+            return;
+        }
+
+        // Tenta salvar no Supabase se houver conexão configurada
+        if (typeof supabase !== 'undefined' && supabase.storage) {
+            const pdfBlob = doc.output('blob');
+            const { data: uploadData, error: uploadError } = await supabase.storage
+                .from('pdfs')
+                .upload(fileName, pdfBlob, {
+                    contentType: 'application/pdf',
+                    cacheControl: '3600'
+                });
+            
+            if (!uploadError && uploadData) {
+                const { data: urlData } = supabase.storage
+                    .from('pdfs')
+                    .getPublicUrl(fileName);
+                
+                await supabase
+                    .from('submissions')
+                    .insert({
+                        patient_name: name,
+                        pdf_url: urlData.publicUrl,
+                        wheel_data: is24 ? { type: '24forcas', scores: wheelState24 } : wheelState
+                    });
+            }
+        }
         
-        // Upload para Supabase
-        const fileName = `roda_vida_${name.replace(/\s+/g, '_')}_${Date.now()}.pdf`;
-        
-        const { data: uploadData, error: uploadError } = await supabase.storage
-            .from('pdfs')
-            .upload(fileName, pdfBlob, {
-                contentType: 'application/pdf',
-                cacheControl: '3600'
-            });
-        
-        if (uploadError) throw uploadError;
-        
-        // Obter URL pública do PDF
-        const { data: urlData } = supabase.storage
-            .from('pdfs')
-            .getPublicUrl(fileName);
-        
-        // Salvar registro no banco
-        const { error: dbError } = await supabase
-            .from('submissions')
-            .insert({
-                patient_name: name,
-                pdf_url: urlData.publicUrl,
-                wheel_data: wheelState
-            });
-        
-        if (dbError) throw dbError;
-        
-        alert('PDF gerado e salvo com sucesso!');
+        // Baixa o arquivo PDF localmente
+        doc.save(fileName);
+        alert('PDF gerado e baixado com sucesso!');
         closeNomeModal();
         
-        // Limpar roda
-        wheelState = [0, 0, 0, 0, 0, 0, 0, 0];
-        drawWheel();
-        
     } catch (error) {
-        console.error('Erro ao salvar:', error);
-        alert('Erro ao salvar. Verifique se o Supabase está configurado corretamente.');
+        console.error('Processando PDF localmente:', error);
+        const is24 = (currentWheelType === '24forcas');
+        const doc = is24 ? createPdf24(name) : createPdf(name);
+        doc.save(`roda_vida_${name.replace(/\s+/g, '_')}.pdf`);
+        alert('PDF baixado com sucesso!');
+        closeNomeModal();
     } finally {
+        isPdfOnlyDownload = false;
         submitBtn.disabled = false;
         submitBtn.textContent = originalText;
     }
 }
 
 function submitRoda() {
+    currentWheelType = 'teen';
+    isPdfOnlyDownload = false;
     promptForName();
 }
 
@@ -262,22 +918,18 @@ function createPdf(name) {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
     
-    // Adicionar título
     doc.setFontSize(16);
-    doc.text('Resumo da Roda da Vida', 20, 15);
+    doc.text('Resumo da Roda da Vida Adolescente', 20, 15);
     
-    // Adicionar informações básicas
     doc.setFontSize(11);
     doc.text(`Nome: ${name}`, 20, 25);
     doc.text(`Data: ${new Date().toLocaleString('pt-BR')}`, 20, 32);
     
-    // Adicionar imagem do canvas (roda da vida)
-    const canvasImage = canvas.toDataURL('image/png');
-    const imgWidth = 140;
-    const imgHeight = 140;
-    doc.addImage(canvasImage, 'PNG', 35, 40, imgWidth, imgHeight);
+    if (canvas) {
+        const canvasImage = canvas.toDataURL('image/png');
+        doc.addImage(canvasImage, 'PNG', 35, 40, 140, 140);
+    }
     
-    // Adicionar respostas
     let yPos = 190;
     doc.setFontSize(12);
     doc.text('Respostas - Roda da Vida:', 20, yPos);
@@ -333,17 +985,21 @@ async function handlePsicoLogout() {
     currentUser = null;
     document.getElementById('loginBox').style.display = 'block';
     document.getElementById('portalContent').style.display = 'none';
-    document.getElementById('loginForm').reset();
+    const form = document.getElementById('loginForm');
+    if (form) form.reset();
 }
 
 function showSignupModal(event) {
-    event.preventDefault();
-    document.getElementById('signupModal').style.display = 'flex';
+    if (event) event.preventDefault();
+    const modal = document.getElementById('signupModal');
+    if (modal) modal.style.display = 'flex';
 }
 
 function closeSignupModal() {
-    document.getElementById('signupModal').style.display = 'none';
-    document.getElementById('signupForm').reset();
+    const modal = document.getElementById('signupModal');
+    if (modal) modal.style.display = 'none';
+    const form = document.getElementById('signupForm');
+    if (form) form.reset();
 }
 
 async function handleSignup(event) {
@@ -387,6 +1043,7 @@ async function handleSignup(event) {
 
 async function loadSubmissions() {
     const list = document.getElementById('submissionsList');
+    if (!list) return;
     list.innerHTML = '<p>Carregando submissões...</p>';
     
     try {
@@ -479,43 +1136,33 @@ const forcasVIA = [
 
 const cardsGrid = document.getElementById('cardsGrid');
 
-forcasVIA.forEach(forca => {
-    const container = document.createElement('div');
-    container.className = 'card-container';
-    
-    const card = document.createElement('div');
-    card.className = 'card';
-    card.onclick = () => card.classList.toggle('flipped');
+if (cardsGrid) {
+    forcasVIA.forEach(forca => {
+        const container = document.createElement('div');
+        container.className = 'card-container';
+        
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.onclick = () => card.classList.toggle('flipped');
 
-    const cardFront = document.createElement('div');
-    cardFront.className = 'card-face card-front';
-    cardFront.textContent = forca.nome;
+        const cardFront = document.createElement('div');
+        cardFront.className = 'card-face card-front';
+        cardFront.textContent = forca.nome;
 
-    const cardBack = document.createElement('div');
-    cardBack.className = 'card-face card-back';
-    cardBack.textContent = forca.texto;
+        const cardBack = document.createElement('div');
+        cardBack.className = 'card-face card-back';
+        cardBack.textContent = forca.texto;
 
-    card.appendChild(cardFront);
-    card.appendChild(cardBack);
-    container.appendChild(card);
-    cardsGrid.appendChild(container);
+        card.appendChild(cardFront);
+        card.appendChild(cardBack);
+        container.appendChild(card);
+        cardsGrid.appendChild(container);
+    });
+}
+
+// Inicializações dos Canvas
+window.addEventListener('DOMContentLoaded', () => {
+    resizeCanvasTeen();
+    resizeCanvas24();
+    updateSummary24();
 });
-
-/* ============================
-   Verificar se usuário já está logado
-   ============================ */
-supabase.auth.onAuthStateChange((event, session) => {
-    if (session?.user) {
-        currentUser = session.user;
-        document.getElementById('loginBox').style.display = 'none';
-        document.getElementById('portalContent').style.display = 'block';
-        loadSubmissions();
-    } else {
-        currentUser = null;
-        document.getElementById('loginBox').style.display = 'block';
-        document.getElementById('portalContent').style.display = 'none';
-    }
-});
-
-// Desenho inicial
-drawWheel();

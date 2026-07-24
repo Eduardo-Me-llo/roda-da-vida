@@ -8,6 +8,58 @@ body {
     padding: 0;
     background-color: #f4f7f6;
     color: #333;
+    overflow-x: hidden;
+}
+
+/* Navbar & Menu Sanduíche */
+.navbar {
+    background-color: #2c3e50;
+    position: relative;
+    z-index: 100;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.navbar-brand {
+    display: none;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 20px;
+    color: #fff;
+}
+
+.brand-title {
+    font-size: 1.1em;
+    font-weight: bold;
+    color: #18bc9c;
+    letter-spacing: 0.5px;
+}
+
+.hamburger-btn {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #fff;
+    font-size: 1em;
+    padding: 6px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: background 0.3s, border-color 0.3s;
+}
+
+.hamburger-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: #18bc9c;
+}
+
+.hamburger-icon {
+    font-size: 1.3em;
+    line-height: 1;
+}
+
+.menu-label {
+    font-weight: bold;
 }
 
 /* Estilo das Abas */
@@ -19,6 +71,7 @@ body {
     list-style: none;
     flex-wrap: wrap;
 }
+
 .tab-link {
     padding: 15px 20px;
     color: #fff;
@@ -30,9 +83,11 @@ body {
     text-align: center;
     min-width: 120px;
 }
+
 .tab-link:hover {
     background-color: #34495e;
 }
+
 .tab-link.active {
     background-color: #18bc9c;
 }
@@ -43,11 +98,12 @@ body {
     padding: 20px;
     text-align: center;
 }
+
 .tab-content.active {
     display: block;
 }
 
-/* Estilo Roda Teen */
+/* Estilo Roda & Canvas Container */
 .roda-container {
     display: flex;
     flex-direction: column;
@@ -56,16 +112,26 @@ body {
     max-width: 600px;
     margin: 0 auto;
 }
+
+.canvas-wrapper {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 20px;
+    touch-action: none;
+}
+
 canvas {
     background-color: #fff;
     border-radius: 50%;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
     cursor: pointer;
-    margin-bottom: 20px;
     max-width: 100%;
     height: auto;
     touch-action: none;
 }
+
 .btn-submit {
     background-color: #18bc9c;
     color: #fff;
@@ -73,15 +139,21 @@ canvas {
     padding: 12px 25px;
     font-size: 1em;
     font-weight: bold;
-    border-radius: 5px;
+    border-radius: 6px;
     cursor: pointer;
-    transition: 0.3s;
+    transition: background-color 0.3s, transform 0.1s;
     width: 100%;
     max-width: 300px;
 }
+
 .btn-submit:hover {
     background-color: #128f76;
 }
+
+.btn-submit:active {
+    transform: scale(0.98);
+}
+
 .btn-submit:disabled {
     background-color: #95a5a6;
     cursor: not-allowed;
@@ -95,12 +167,14 @@ canvas {
     justify-content: center;
     padding: 10px;
 }
+
 .card-container {
     perspective: 1000px;
     width: 100%;
     max-width: 250px;
     height: 280px;
 }
+
 .card {
     width: 100%;
     height: 100%;
@@ -109,9 +183,11 @@ canvas {
     cursor: pointer;
     position: relative;
 }
+
 .card.flipped {
     transform: rotateY(180deg);
 }
+
 .card-face {
     position: absolute;
     width: 100%;
@@ -125,6 +201,7 @@ canvas {
     border-radius: 12px;
     box-shadow: 0 4px 8px rgba(0,0,0,0.15);
 }
+
 .card-front {
     background-color: #fff;
     color: #2c3e50;
@@ -132,6 +209,7 @@ canvas {
     font-weight: bold;
     border-bottom: 5px solid #18bc9c;
 }
+
 .card-back {
     background-color: #18bc9c;
     color: #fff;
@@ -147,11 +225,13 @@ h1 {
     margin-bottom: 10px;
     font-size: 1.8em;
 }
+
 p.subtitle {
     color: #7f8c8d;
-    margin-bottom: 30px;
+    margin-bottom: 25px;
     font-size: 1em;
     padding: 0 10px;
+    line-height: 1.5;
 }
 
 /* Estilo do Portal do Psicólogo */
@@ -164,6 +244,7 @@ p.subtitle {
     width: 100%;
     margin: 0 auto;
 }
+
 .login-box label {
     display: block;
     margin-bottom: 8px;
@@ -171,16 +252,17 @@ p.subtitle {
     color: #2c3e50;
     text-align: left;
 }
+
 .login-box input {
     display: block;
     width: 100%;
-    padding: 10px;
+    padding: 12px;
     margin-bottom: 15px;
     border: 1px solid #bdc3c7;
-    border-radius: 5px;
+    border-radius: 6px;
     font-size: 1em;
-    box-sizing: border-box;
 }
+
 .login-box input:focus {
     outline: none;
     border-color: #18bc9c;
@@ -193,27 +275,32 @@ p.subtitle {
     margin: 30px auto;
     padding: 0 10px;
 }
+
 .submission-card {
     background-color: #fff;
     border-left: 5px solid #18bc9c;
     padding: 15px;
     margin-bottom: 15px;
-    border-radius: 5px;
+    border-radius: 6px;
     box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     display: flex;
     flex-direction: column;
     gap: 10px;
+    text-align: left;
 }
+
 .submission-title {
     font-size: 1.1em;
     font-weight: bold;
     color: #2c3e50;
     word-break: break-word;
 }
+
 .submission-meta {
     font-size: 0.85em;
     color: #7f8c8d;
 }
+
 .submission-card .btn-submit {
     align-self: flex-start;
     padding: 8px 16px;
@@ -221,7 +308,7 @@ p.subtitle {
     width: auto;
 }
 
-/* Estilo do Modal */
+/* Modais */
 .modal {
     position: fixed;
     z-index: 1000;
@@ -229,11 +316,11 @@ p.subtitle {
     top: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: rgba(0, 0, 0, 0.55);
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 20px;
+    padding: 15px;
 }
 
 .modal-content {
@@ -242,10 +329,11 @@ p.subtitle {
     border-radius: 12px;
     box-shadow: 0 4px 20px rgba(0,0,0,0.3);
     width: 100%;
-    max-width: 400px;
+    max-width: 420px;
     position: relative;
     max-height: 90vh;
     overflow-y: auto;
+    text-align: left;
 }
 
 .modal-close {
@@ -277,14 +365,12 @@ p.subtitle {
 .modal-content label {
     font-weight: bold;
     color: #2c3e50;
-    margin-top: 8px;
-    text-align: left;
 }
 
 .modal-content input {
-    padding: 10px;
+    padding: 12px;
     border: 1px solid #bdc3c7;
-    border-radius: 5px;
+    border-radius: 6px;
     font-size: 1em;
 }
 
@@ -294,115 +380,187 @@ p.subtitle {
     box-shadow: 0 0 5px rgba(24, 188, 156, 0.3);
 }
 
-/* Loading spinner */
+/* Spinner Loading */
 .loading {
     display: inline-block;
-    width: 20px;
-    height: 20px;
+    width: 18px;
+    height: 18px;
     border: 3px solid rgba(255,255,255,.3);
     border-radius: 50%;
     border-top-color: #fff;
     animation: spin 1s ease-in-out infinite;
+    vertical-align: middle;
 }
 
 @keyframes spin {
     to { transform: rotate(360deg); }
 }
 
-/* Media Queries para Mobile */
+/* Estilos do Resumo da Roda 24 Forças VIA */
+.summary-container {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 22px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    text-align: left;
+    margin-top: 20px;
+}
+
+.summary-container h2 {
+    color: #2c3e50;
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-size: 1.3em;
+    text-align: center;
+    border-bottom: 2px solid #ecf0f1;
+    padding-bottom: 10px;
+}
+
+.virtues-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 15px;
+}
+
+.virtue-summary-card {
+    background: #f8f9fa;
+    border-radius: 8px;
+    border-left: 5px solid #3498db;
+    overflow: hidden;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    display: flex;
+    flex-direction: column;
+}
+
+.virtue-header {
+    padding: 10px 12px;
+    font-weight: bold;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.88em;
+}
+
+.virtue-title {
+    font-size: 0.82em;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.virtue-avg {
+    font-size: 0.82em;
+    background: rgba(255,255,255,0.75);
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-weight: 700;
+}
+
+.virtue-body {
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.strength-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.85em;
+    color: #333;
+    padding-bottom: 4px;
+    border-bottom: 1px dashed #e2e8f0;
+}
+
+.strength-item:last-child {
+    border-bottom: none;
+}
+
+.strength-name {
+    font-weight: 500;
+}
+
+.strength-val {
+    font-weight: bold;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 0.8em;
+}
+
+/* Media Queries para Mobile & Responsividade Extrema */
 @media (max-width: 768px) {
+    .navbar-brand {
+        display: flex;
+    }
+
+    .tabs {
+        display: none;
+        flex-direction: column;
+        width: 100%;
+        background-color: #34495e;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .tabs.open {
+        display: flex;
+    }
+
     .tab-link {
-        padding: 12px 15px;
-        font-size: 0.9em;
-        min-width: 100px;
+        width: 100%;
+        text-align: left;
+        padding: 14px 20px;
+        font-size: 0.95em;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
     }
 
     .tab-content {
-        padding: 15px 10px;
+        padding: 15px 8px;
     }
 
     h1 {
-        font-size: 1.5em;
+        font-size: 1.4em;
     }
 
     p.subtitle {
-        font-size: 0.9em;
-    }
-
-    .card-container {
-        width: 100%;
-        max-width: 280px;
-        height: 300px;
-    }
-
-    .card-front {
-        font-size: 1.1em;
-    }
-
-    .card-back {
-        font-size: 0.9em;
-        padding: 15px;
+        font-size: 0.88em;
+        margin-bottom: 18px;
     }
 
     .btn-submit {
         font-size: 0.95em;
-        padding: 10px 20px;
+        padding: 12px 18px;
+        max-width: 100%;
     }
 
-    .modal-content {
-        padding: 20px 15px;
+    .summary-container {
+        padding: 15px;
     }
 
-    .modal-content h2 {
-        font-size: 1.3em;
-    }
-
-    .submission-title {
-        font-size: 1em;
-    }
-
-    .portal-content > div:first-child {
-        flex-direction: column !important;
-        gap: 15px;
-    }
-
-    .portal-content > div:first-child > div {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-        width: 100%;
-    }
-
-    .portal-content > div:first-child > div button {
-        width: 100%;
-        margin: 0 !important;
+    .virtues-summary-grid {
+        grid-template-columns: 1fr;
     }
 }
 
 @media (max-width: 480px) {
-    .tabs {
-        flex-direction: column;
-    }
-
-    .tab-link {
-        width: 100%;
-        text-align: center;
-    }
-
     h1 {
-        font-size: 1.3em;
+        font-size: 1.25em;
+    }
+
+    p.subtitle {
+        font-size: 0.82em;
     }
 
     .card-container {
         max-width: 100%;
-        height: 280px;
+        height: 260px;
     }
 
     .card-front {
-        font-size: 1em;
+        font-size: 1.05em;
     }
 
     .card-back {
         font-size: 0.85em;
+        padding: 15px;
     }
 }
