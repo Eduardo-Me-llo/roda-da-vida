@@ -1,0 +1,23 @@
+# Arquivos de configuração com credenciais sensíveis
+config.js
+
+# Manter o template
+!config.example.js
+
+# Arquivos do sistema operacional
+.DS_Store
+Thumbs.db
+
+# Editores
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+npm-debug.log*
+
+# Node modules (caso use futuramente)
+node_modules/

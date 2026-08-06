@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Psicologia Interativa - Roda das 24 Forças VIA & Roda da Vida</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <!-- Navegação por Abas com Menu Sanduíche -->
+    <nav class="navbar">
+        <div class="navbar-brand">
+            <span class="brand-title">Psicologia Interativa</span>
+            <button class="hamburger-btn" id="hamburgerBtn" onclick="toggleMenu()" aria-label="Abrir Menu">
+                <span class="hamburger-icon">&#9776;</span>
+                <span class="menu-label">Menu</span>
+            </button>
+        </div>
+        <ul class="tabs" id="tabsList">
+            <li class="tab-link active" onclick="selectTab('roda-24-forcas', this)">Roda 24 Forças VIA</li>
+            <li class="tab-link" onclick="selectTab('roda-teen', this)">Roda Adolescente</li>
+            <li class="tab-link" onclick="selectTab('teste-forcas', this)">Teste de Forças</li>
+            <li class="tab-link" onclick="selectTab('forcas-via', this)">Cartões de Forças</li>
+            <li class="tab-link" onclick="selectTab('portal-psico', this)">Portal</li>
+        </ul>
+    </nav>
+
+    <!-- Aba 1: Roda das 24 Forças de Caráter VIA -->
+    <div id="roda-24-forcas" class="tab-content active">
+        <h1>Roda das 24 Forças de Caráter e Virtudes VIA</h1>
+        <p class="subtitle">
+            Avaliação completa agrupada nas 6 Virtudes Principais.<br>
+            O gráfico é dividido em 24 fatias de 15° e 10 níveis concêntricos (do 1 no centro ao 10 na borda).<br>
+            Toque/clique na fatia correspondente ao nível de 1 a 10 para preencher sua nota.
+        </p>
+        
+        <div class="roda-container" style="max-width: 800px;">
+            <div class="canvas-wrapper">
+                <canvas id="roda24Canvas" width="750" height="750"></canvas>
+            </div>
+            
+            <div style="display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; width: 100%; max-width: 600px; margin-bottom: 25px;">
+                <button class="btn-submit" style="background-color: #27ae60;" onclick="downloadPdfOnly24()">Baixar Apenas PDF</button>
+                <button class="btn-submit" onclick="submitRoda24()">Salvar no Sistema & PDF</button>
+                <button class="btn-submit" style="background-color: #7f8c8d; width: auto;" onclick="resetWheel24()">Limpar</button>
+            </div>
+            
+            <!-- Resumo das 24 Forças agrupadas por Virtude -->
+            <div id="summary24Container" class="summary-container" style="display: none; width: 100%;">
+                <h2>Resumo da Avaliação por Virtude</h2>
+                <div id="virtuesSummaryGrid" class="virtues-summary-grid"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Aba 2: Roda da Vida Adolescente (8 áreas) -->
+    <div id="roda-teen" class="tab-content">
+        <h1>Roda da Vida Adolescente</h1>
+        <p class="subtitle">Toque/clique nas partes do gráfico para preencher cada área com uma nota de 1 a 10.</p>
+        
+        <div class="roda-container">
+            <div class="canvas-wrapper">
+                <canvas id="rodaCanvas" width="600" height="600"></canvas>
+            </div>
+            <div style="display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; width: 100%; max-width: 500px; margin-bottom: 25px;">
+                <button class="btn-submit" style="background-color: #27ae60;" onclick="downloadPdfOnlyTeen()">Baixar Apenas PDF</button>
+                <button class="btn-submit" onclick="submitRoda()">Salvar no Sistema & PDF</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Aba 3: Teste de Forças -->
+    <div id="teste-forcas" class="tab-content">
+        <h1>VIA ME – Teste de Forças</h1>
+        <p class="subtitle">Selecione até 5 das suas principais forças de caráter e visualize no gráfico interativo.</p>
+        
+        <div class="teste-forcas-container">
+            <div class="forcas-selection">
+                <h3>Selecione até 5 forças:</h3>
+                <div class="forcas-checkboxes" id="forcasCheckboxes"></div>
+                <div class="selection-counter" id="selectionCounter">0 / 5 forças selecionadas</div>
+            </div>
+            
+            <div class="forcas-chart-container">
+                <canvas id="testeForcasCanvas" width="700" height="700"></canvas>
+            </div>
+            
+            <div style="display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; width: 100%; max-width: 600px; margin-top: 20px;">
+                <button class="btn-submit" style="background-color: #27ae60;" onclick="downloadTesteForcasPDF()">Salvar Gráfico (PDF)</button>
+                <button class="btn-submit" style="background-color: #7f8c8d; width: auto;" onclick="resetTesteForcas()">Limpar Seleção</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Aba 4: Cartões das Forças VIA -->
+    <div id="forcas-via" class="tab-content">
+        <h1>Cartões das Forças de Caráter</h1>
+        <p class="subtitle">Clique em um card para ver a explicação de cada força de assinatura.</p>
+        
+        <div class="cards-grid" id="cardsGrid"></div>
+    </div>
+
+    <!-- Aba 5: Portal do Psicólogo -->
+    <div id="portal-psico" class="tab-content">
+        <h1>Portal do Psicólogo</h1>
+        <p class="subtitle">Faça login para acessar os relatórios e submissões recebidas</p>
+        
+        <div class="login-box" id="loginBox">
+            <form id="loginForm" onsubmit="handlePsicoLogin(event)">
+                <label for="psicoUser">E-mail / Usuário</label>
+                <input type="email" id="psicoUser" placeholder="seu@email.com" required>
+                <label for="psicoPassword">Senha</label>
+                <input type="password" id="psicoPassword" placeholder="Sua senha" required>
+                <button type="submit" class="btn-submit">Entrar</button>
+            </form>
+        </div>
+        
+        <div class="portal-content" id="portalContent" style="display:none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+                <h2 style="margin: 0;">Submissões Recebidas</h2>
+                <div>
+                    <button class="btn-submit" onclick="showSignupModal(event)" style="margin-right: 10px; width: auto; padding: 10px 18px;">Cadastrar Psicólogo</button>
+                    <button class="btn-submit" onclick="handlePsicoLogout()" style="background-color: #e74c3c; width: auto; padding: 10px 18px;">Sair</button>
+                </div>
+            </div>
+            <div id="submissionsList" class="submissions-list"></div>
+        </div>
+    </div>
+
+    <!-- Modal para Salvar / Informar Nome do Avaliado -->
+    <div id="nomeModal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeNomeModal()">&times;</span>
+            <h2>Gerar Relatório PDF</h2>
+            <form id="nomeForm" onsubmit="handleSubmitRoda(event)">
+                <label for="pacienteName">Nome do Avaliado / Paciente:</label>
+                <input type="text" id="pacienteName" placeholder="Digite o nome completo" required autofocus>
+                <button type="submit" class="btn-submit">Baixar PDF</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal para Cadastro de Psicólogos -->
+    <div id="signupModal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeSignupModal()">&times;</span>
+            <h2>Cadastrar Psicólogo</h2>
+            <form id="signupForm" onsubmit="handleSignup(event)">
+                <label for="signupNome">Nome Completo</label>
+                <input type="text" id="signupNome" placeholder="Nome do psicólogo" required>
+                <label for="signupCRP">CRP</label>
+                <input type="text" id="signupCRP" placeholder="Ex: 06/123456" required>
+                <label for="signupEmail">E-mail</label>
+                <input type="email" id="signupEmail" placeholder="seu@email.com" required>
+                <label for="signupPassword">Senha</label>
+                <input type="password" id="signupPassword" placeholder="Senha de acesso" required>
+                <button type="submit" class="btn-submit">Cadastrar</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Bibliotecas Externas e Scripts da Aplicação -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="config.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
