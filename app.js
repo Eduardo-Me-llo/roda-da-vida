@@ -1484,19 +1484,6 @@ function drawTesteForcasChart() {
             ctxTesteForcas.fillText(forca.name, textX, textY);
         }
     });
-    
-    // Adicionar título no topo (com espaçamento adequado)
-    const titleTopSize = Math.max(14, Math.floor(displaySize / 42));
-    const titleTopY = Math.max(20, displaySize * 0.035); // Posição responsiva
-    ctxTesteForcas.font = `bold ${titleTopSize}px Arial, sans-serif`;
-    ctxTesteForcas.fillStyle = '#2c3e50';
-    ctxTesteForcas.textAlign = 'center';
-    ctxTesteForcas.fillText('VIA ME – Teste de forças', cx, titleTopY);
-    
-    // Adicionar logo colorido no canto superior direito
-    const logoSize = Math.max(15, Math.floor(displaySize / 40));
-    const logoMargin = Math.max(30, displaySize * 0.05);
-    drawColorWheel(ctxTesteForcas, displaySize - logoMargin, titleTopY, logoSize);
 }
 
 function drawArrow(ctx, fromX, fromY, toX, toY, color, size) {
