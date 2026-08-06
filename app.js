@@ -1378,14 +1378,15 @@ function drawTesteForcasChart() {
     drawArrow(ctxTesteForcas, cx - axisLength + 18, cy, cx - axisLength - 5, cy, '#81c0d9', arrowSize);
     
     // Adicionar títulos dos eixos
-    const titleSize = Math.max(15, Math.floor(displaySize / 42));
+    const titleSize = Math.max(13, Math.floor(displaySize / 48));
+    const titleOffset = Math.max(30, displaySize * 0.055); // Espaçamento maior e responsivo
     ctxTesteForcas.font = `bold ${titleSize}px Arial, sans-serif`;
     ctxTesteForcas.fillStyle = '#2c3e50';
     ctxTesteForcas.textAlign = 'center';
     ctxTesteForcas.textBaseline = 'middle';
     
-    // Título superior
-    ctxTesteForcas.fillText('Foco nos outros', cx, cy - axisLength - 25);
+    // Título superior (com mais espaço do topo)
+    ctxTesteForcas.fillText('Foco nos outros', cx, cy - axisLength - titleOffset);
     
     // Título direita
     ctxTesteForcas.save();
@@ -1484,15 +1485,18 @@ function drawTesteForcasChart() {
         }
     });
     
-    // Adicionar título no topo
-    const titleTopSize = Math.max(17, Math.floor(displaySize / 36));
+    // Adicionar título no topo (com espaçamento adequado)
+    const titleTopSize = Math.max(14, Math.floor(displaySize / 42));
+    const titleTopY = Math.max(20, displaySize * 0.035); // Posição responsiva
     ctxTesteForcas.font = `bold ${titleTopSize}px Arial, sans-serif`;
     ctxTesteForcas.fillStyle = '#2c3e50';
     ctxTesteForcas.textAlign = 'center';
-    ctxTesteForcas.fillText('VIA ME – Teste de forças', cx, 25);
+    ctxTesteForcas.fillText('VIA ME – Teste de forças', cx, titleTopY);
     
     // Adicionar logo colorido no canto superior direito
-    drawColorWheel(ctxTesteForcas, displaySize - 35, 30, 18);
+    const logoSize = Math.max(15, Math.floor(displaySize / 40));
+    const logoMargin = Math.max(30, displaySize * 0.05);
+    drawColorWheel(ctxTesteForcas, displaySize - logoMargin, titleTopY, logoSize);
 }
 
 function drawArrow(ctx, fromX, fromY, toX, toY, color, size) {
