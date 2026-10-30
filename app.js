@@ -702,7 +702,7 @@ const ctx = canvas ? canvas.getContext('2d') : null;
 
 function resizeCanvasTeen() {
     if (!canvas) return;
-    let displaySize = Math.min(600, Math.max(300, window.innerWidth - 20));
+    let displaySize = Math.min(600, Math.max(260, window.innerWidth - 36));
     canvas.style.width = displaySize + 'px';
     canvas.style.height = displaySize + 'px';
     
@@ -727,7 +727,7 @@ const getCenterAndRadius = () => {
 };
 
 const categories = [
-    { name: 'ESCOLA', color: '#ff6b6b' },
+    { name: 'FACULDADE', color: '#ff6b6b' },
     { name: 'NOTAS', color: '#4ecdc4' },
     { name: 'FAMÍLIA', color: '#9b59b6' },
     { name: 'AMIGOS', color: '#f1c40f' },
@@ -738,6 +738,71 @@ const categories = [
 ];
 
 let wheelState = [0, 0, 0, 0, 0, 0, 0, 0];
+let teenNotes = categories.map(() => '');
+let activeTeenArea = 0;
+
+function renderTeenNotes() {
+    const container = document.getElementById('teenNotes');
+    if (!container) return;
+
+    container.replaceChildren();
+    categories.forEach((category, index) => {
+        const areaName = category.name.replace('\n', ' ');
+        const card = document.createElement('section');
+        card.className = 'teen-note-card';
+        card.id = `teen-note-card-${index}`;
+        card.style.setProperty('--area-color', category.color);
+
+        const button = document.createElement('button');
+        button.className = 'teen-area-button';
+        button.type = 'button';
+        button.setAttribute('aria-pressed', String(index === activeTeenArea));
+        button.textContent = `${areaName} · Nota ${wheelState[index] || '—'}`;
+
+        const textarea = document.createElement('textarea');
+        textarea.id = `teen-note-${index}`;
+        textarea.rows = 4;
+        textarea.maxLength = 1000;
+        textarea.value = teenNotes[index];
+        textarea.placeholder = `Escreva suas anotações para ${areaName.toLowerCase()}`;
+        textarea.setAttribute('aria-label', `Anotações para ${areaName}`);
+        textarea.addEventListener('focus', () => selectTeenArea(index));
+        textarea.addEventListener('input', event => {
+            teenNotes[index] = event.target.value;
+        });
+        button.addEventListener('click', () => selectTeenArea(index, true));
+
+        card.append(button, textarea);
+        container.appendChild(card);
+    });
+    updateTeenNoteControls();
+}
+
+function updateTeenNoteControls() {
+    categories.forEach((category, index) => {
+        const card = document.getElementById(`teen-note-card-${index}`);
+        if (!card) return;
+        const button = card.querySelector('.teen-area-button');
+        card.classList.toggle('active', index === activeTeenArea);
+        button.setAttribute('aria-pressed', String(index === activeTeenArea));
+        button.textContent = `${category.name.replace('\n', ' ')} · Nota ${wheelState[index] || '—'}`;
+    });
+}
+
+function selectTeenArea(index, focusField = false) {
+    activeTeenArea = index;
+    updateTeenNoteControls();
+    if (!focusField) return;
+
+    const card = document.getElementById(`teen-note-card-${index}`);
+    const textarea = document.getElementById(`teen-note-${index}`);
+    if (!card || !textarea) return;
+    const bounds = card.getBoundingClientRect();
+    if (bounds.top < 0 || bounds.bottom > window.innerHeight) {
+        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+    textarea.focus({ preventScroll: true });
+}
 
 function drawWheel() {
     if (!canvas || !ctx) return;
@@ -828,11 +893,11 @@ function handleInteraction(e) {
     
     wheelState[catIndex] = level;
     drawWheel();
+    selectTeenArea(catIndex, true);
 }
 
 if (canvas) {
     canvas.addEventListener('click', handleInteraction);
-    canvas.addEventListener('touchstart', handleInteraction, { passive: false });
 }
 
 window.addEventListener('resize', () => {
@@ -901,7 +966,11 @@ async function handleSubmitRoda(event) {
                     .insert({
                         patient_name: name,
                         pdf_url: urlData.publicUrl,
-                        wheel_data: is24 ? { type: '24forcas', scores: wheelState24 } : wheelState
+                        wheel_data: is24 ? { type: '24forcas', scores: wheelState24 } : {
+                            type: 'teen',
+                            scores: wheelState,
+                            notes: teenNotes
+                        }
                     });
             }
         }
@@ -936,7 +1005,7 @@ function createPdf(name) {
     const doc = new jsPDF();
     
     doc.setFontSize(16);
-    doc.text('Resumo da Roda da Vida Adolescente', 20, 15);
+    doc.text('Resumo da Roda da Vida', 20, 15);
     
     doc.setFontSize(11);
     doc.text(`Nome: ${name}`, 20, 25);
@@ -957,6 +1026,25 @@ function createPdf(name) {
         const displayName = cat.name.replace('\n', ' ');
         doc.text(`${displayName}: ${wheelState[i]}`, 20, yPos);
         yPos += 6;
+    });
+
+    doc.addPage();
+    doc.setFontSize(12);
+    doc.text('Anotações: o que desejo para cada área', 20, 18);
+    yPos = 28;
+    categories.forEach((cat, index) => {
+        const displayName = cat.name.replace('\n', ' ');
+        const noteLines = doc.splitTextToSize(teenNotes[index].trim() || 'Sem anotação.', 170);
+        const blockHeight = 8 + noteLines.length * 5;
+        if (yPos + blockHeight > 280) {
+            doc.addPage();
+            yPos = 20;
+        }
+        doc.setFontSize(11);
+        doc.text(`${displayName} (Nota ${wheelState[index]}):`, 20, yPos);
+        doc.setFontSize(10);
+        doc.text(noteLines, 20, yPos + 6);
+        yPos += blockHeight + 5;
     });
     
     return doc;
@@ -1183,6 +1271,7 @@ if (cardsGrid) {
 window.addEventListener('DOMContentLoaded', () => {
     resizeCanvasTeen();
     resizeCanvas24();
+    renderTeenNotes();
     updateSummary24();
 });
 

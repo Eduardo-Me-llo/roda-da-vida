@@ -132,6 +132,70 @@ canvas {
     touch-action: none;
 }
 
+.teen-notes-section {
+    width: 100%;
+    max-width: 760px;
+    text-align: left;
+}
+
+.teen-notes-section h2 {
+    margin: 0 0 14px;
+    color: #2c3e50;
+    font-size: 1.25em;
+    text-align: center;
+}
+
+.teen-notes {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.teen-note-card {
+    min-width: 0;
+    padding: 12px;
+    background: #fff;
+    border: 1px solid #dfe6e9;
+    border-top: 4px solid var(--area-color);
+    border-radius: 6px;
+}
+
+.teen-note-card.active {
+    border-color: var(--area-color);
+}
+
+.teen-area-button {
+    display: block;
+    width: 100%;
+    margin: 0 0 8px;
+    padding: 4px 0;
+    border: 0;
+    background: transparent;
+    color: #2c3e50;
+    font: inherit;
+    font-weight: 700;
+    text-align: left;
+    cursor: pointer;
+}
+
+.teen-note-card textarea {
+    display: block;
+    width: 100%;
+    min-height: 100px;
+    padding: 10px;
+    border: 1px solid #bdc3c7;
+    border-radius: 4px;
+    color: #333;
+    font: inherit;
+    line-height: 1.45;
+    resize: vertical;
+}
+
+.teen-note-card textarea:focus {
+    outline: 2px solid var(--area-color);
+    outline-offset: 1px;
+}
+
 .btn-submit {
     background-color: #18bc9c;
     color: #fff;
@@ -640,6 +704,15 @@ p.subtitle {
 
     .forcas-checkboxes {
         grid-template-columns: 1fr;
+    }
+
+    .teen-notes {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .teen-note-card textarea {
+        font-size: 16px;
     }
 
     .teste-forcas-container {

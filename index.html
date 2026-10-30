@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Psicologia Interativa - Roda das 24 Forças VIA & Roda da Vida</title>
     <link rel="stylesheet" href="styles.css">
 </head>
@@ -18,8 +18,8 @@
             </button>
         </div>
         <ul class="tabs" id="tabsList">
-            <li class="tab-link active" onclick="selectTab('roda-24-forcas', this)">Roda 24 Forças VIA</li>
-            <li class="tab-link" onclick="selectTab('roda-teen', this)">Roda Adolescente</li>
+            <li class="tab-link active" onclick="selectTab('roda-24-forcas', this)">Roda das 24 Forças</li>
+            <li class="tab-link" onclick="selectTab('roda-teen', this)">Roda da Vida</li>
             <li class="tab-link" onclick="selectTab('teste-forcas', this)">Teste de Forças</li>
             <li class="tab-link" onclick="selectTab('forcas-via', this)">Cartões de Forças</li>
             <li class="tab-link" onclick="selectTab('portal-psico', this)">Portal</li>
@@ -28,7 +28,7 @@
 
     <!-- Aba 1: Roda das 24 Forças de Caráter VIA -->
     <div id="roda-24-forcas" class="tab-content active">
-        <h1>Roda das 24 Forças de Caráter e Virtudes VIA</h1>
+        <h1>Roda das 24 Forças de Caráter e Virtudes</h1>
         <p class="subtitle">
             Avaliação completa agrupada nas 6 Virtudes Principais.<br>
             O gráfico é dividido em 24 fatias de 15° e 10 níveis concêntricos (do 1 no centro ao 10 na borda).<br>
@@ -54,9 +54,9 @@
         </div>
     </div>
 
-    <!-- Aba 2: Roda da Vida Adolescente (8 áreas) -->
+    <!-- Aba 2: Roda da Vida  (8 áreas) -->
     <div id="roda-teen" class="tab-content">
-        <h1>Roda da Vida Adolescente</h1>
+        <h1>Roda da Vida</h1>
         <p class="subtitle">Toque/clique nas partes do gráfico para preencher cada área com uma nota de 1 a 10.</p>
         
         <div class="roda-container">
@@ -65,14 +65,18 @@
             </div>
             <div style="display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; width: 100%; max-width: 500px; margin-bottom: 25px;">
                 <button class="btn-submit" style="background-color: #27ae60;" onclick="downloadPdfOnlyTeen()">Baixar Apenas PDF</button>
-                <button class="btn-submit" onclick="submitRoda()">Salvar no Sistema & PDF</button>
+                <button class="btn-submit" onclick="submitRoda()">Salvar no Sistema & gerar PDF</button>
             </div>
+            <section class="teen-notes-section" aria-labelledby="teenNotesTitle">
+                <h2 id="teenNotesTitle">Sua anotação para cada área</h2>
+                <div id="teenNotes" class="teen-notes"></div>
+            </section>
         </div>
     </div>
 
     <!-- Aba 3: Teste de Forças -->
     <div id="teste-forcas" class="tab-content">
-        <h1>VIA ME – Teste de Forças</h1>
+        <h1>Teste de Forças</h1>
         <p class="subtitle">Selecione até 5 das suas principais forças de caráter e visualize no gráfico interativo.</p>
         
         <div class="teste-forcas-container">
