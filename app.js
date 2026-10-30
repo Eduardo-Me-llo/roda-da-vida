@@ -757,14 +757,14 @@ function renderTeenNotes() {
         button.className = 'teen-area-button';
         button.type = 'button';
         button.setAttribute('aria-pressed', String(index === activeTeenArea));
-        button.textContent = `${areaName} · Nota ${wheelState[index] || '—'}`;
+        button.textContent = areaName;
 
         const textarea = document.createElement('textarea');
         textarea.id = `teen-note-${index}`;
         textarea.rows = 4;
         textarea.maxLength = 1000;
         textarea.value = teenNotes[index];
-        textarea.placeholder = `Escreva suas anotações para ${areaName.toLowerCase()}`;
+        textarea.placeholder = `O que você deseja para ${areaName.toLowerCase()}?`;
         textarea.setAttribute('aria-label', `Anotações para ${areaName}`);
         textarea.addEventListener('focus', () => selectTeenArea(index));
         textarea.addEventListener('input', event => {
@@ -785,7 +785,7 @@ function updateTeenNoteControls() {
         const button = card.querySelector('.teen-area-button');
         card.classList.toggle('active', index === activeTeenArea);
         button.setAttribute('aria-pressed', String(index === activeTeenArea));
-        button.textContent = `${category.name.replace('\n', ' ')} · Nota ${wheelState[index] || '—'}`;
+        button.textContent = category.name.replace('\n', ' ');
     });
 }
 
